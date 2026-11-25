@@ -1,714 +1,739 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Veloce — Sesli AI Dil Koçu</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-<style>
-body {
-font-family: 'Quicksand', sans-serif;
-background: linear-gradient(135deg, #f8f7fc 0%, #f3f6fb 50%, #fdf6f8 100%);
-color: #3b4252;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veloce — Sesli AI Dil Koçu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #f8f7fc 0%, #f3f6fb 50%, #fdf6f8 100%);
+      color: #3b4252;
+    }
 
-/* Mevcut Caveat yazı stili korunarak su yeşili ton ve kesik 'e' harfi düzeltmesi */
-.veloce-logo {
-font-family: 'Caveat', cursive;
-color: #0d9488;
--webkit-text-fill-color: #0d9488;
-background: none;
-line-height: 1.3;
-letter-spacing: 0.02em;
-padding-right: 4px;
-display: inline-block;
-}
+    /* Mevcut Caveat yazı stili korunarak su yeşili ton ve kesik 'e' harfi düzeltmesi */
+    .veloce-logo {
+      font-family: 'Caveat', cursive;
+      color: #0d9488;
+      -webkit-text-fill-color: #0d9488;
+      background: none;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+      padding-right: 4px;
+      display: inline-block;
+    }
 
-@keyframes pulse-ring {
-0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
-70% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(99, 102, 241, 0); }
-100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-}
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
+      70% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(99, 102, 241, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
 
-.listening {
-animation: pulse-ring 1.5s infinite;
-background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
-}
+    .listening {
+      animation: pulse-ring 1.5s infinite;
+      background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
+    }
 
-/* Lingu maskot durum animasyonları */
-@keyframes mascot-speak {
-0%, 100% { transform: scale(1) translateY(0); }
-50% { transform: scale(1.08) translateY(-2px); }
-}
+    /* Lingu maskot durum animasyonları */
+    @keyframes mascot-speak {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.08) translateY(-2px); }
+    }
 
-@keyframes mascot-listen {
-0%, 100% { transform: scale(1) rotate(0deg); }
-50% { transform: scale(1.05) rotate(-4deg); }
-}
+    @keyframes mascot-listen {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.05) rotate(-4deg); }
+    }
 
-.mascot-avatar {
-transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
+    .mascot-avatar {
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
 
-.mascot-speaking {
-animation: mascot-speak 0.65s ease-in-out infinite;
-border-color: #14b8a6 !important;
-box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.22);
-}
+    .mascot-speaking {
+      animation: mascot-speak 0.65s ease-in-out infinite;
+      border-color: #14b8a6 !important;
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.22);
+    }
 
-.mascot-listening {
-animation: mascot-listen 0.8s ease-in-out infinite;
-border-color: #f43f5e !important;
-box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.22);
-}
+    .mascot-listening {
+      animation: mascot-listen 0.8s ease-in-out infinite;
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.22);
+    }
 
-.mascot-thinking {
-transform: scale(1.03);
-border-color: #6366f1 !important;
-box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
-}
+    .mascot-thinking {
+      transform: scale(1.03);
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+    }
 
-#splash-screen {
-transition: opacity 0.65s ease, visibility 0.65s ease;
-}
-#splash-screen.hidden-splash {
-opacity: 0;
-visibility: hidden;
-pointer-events: none;
-}
-</style>
+    #splash-screen {
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #splash-screen.hidden-splash {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body class="min-h-screen p-4 sm:p-6 flex flex-col items-center justify-center relative overflow-x-hidden">
 
-<!-- Açılış Ekranı (Splash Screen) -->
-<div id="splash-screen" onclick="dismissSplash()" class="fixed inset-0 z-50 flex flex-col items-center justify-between py-12 px-6 bg-gradient-to-br from-[#f8f7fc] via-[#f4f2fb] to-[#fdf6f8] cursor-pointer">
-<div></div>
-<div class="flex flex-col items-center text-center space-y-3">
-<div class="w-24 h-24 rounded-3xl bg-white/90 shadow-md border border-teal-100 flex items-center justify-center overflow-hidden p-1.5">
-<img src="maskot.png" alt="Lingu Maskot" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-contain rounded-2xl">
-<span class="hidden w-full h-full items-center justify-center text-3xl">🌸</span>
-</div>
-<div class="flex items-center gap-1.5">
-<span class="veloce-logo text-7xl font-bold select-none">Veloce</span>
-<span class="w-2.5 h-2.5 rounded-full bg-teal-500 mt-5"></span>
-</div>
-<p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Sesli AI Dil Koçu</p>
-</div>
-<div class="text-center">
-<p class="text-[11px] font-medium tracking-wider text-slate-400/60 select-none">
-© 2026 Veloce • Enes Emre Işık
-</p>
-</div>
-</div>
-
-<!-- Ana Uygulama Kartı -->
-<div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border border-white space-y-4">
-
-<!-- Veloce Marka Başlığı, 7 Dil Seçici ve Eğitim Düzeyi -->
-<div class="flex items-start justify-between gap-2">
-<div>
-<div class="flex items-center gap-1.5">
-<h1 class="veloce-logo text-5xl font-bold select-none">Veloce</h1>
-<span class="w-2 h-2 rounded-full bg-teal-500 mt-3"></span>
-</div>
-<p class="text-[11px] text-slate-400 font-semibold tracking-wide mt-1">Akıcı konuş, kendi ritminde öğren</p>
-</div>
-
-<div class="flex flex-col gap-1.5">
-<select id="target-lang" class="text-xs font-bold bg-indigo-50/80 text-indigo-600 px-3 py-2 rounded-2xl border border-indigo-100 focus:outline-none cursor-pointer">
-<option value="en-US">🇬🇧 İngilizce</option>
-<option value="fr-FR">🇫🇷 Fransızca</option>
-<option value="es-ES">🇪🇸 İspanyolca</option>
-<option value="tr-TR">🇹🇷 Türkçe</option>
-<option value="ru-RU">🇷🇺 Rusça</option>
-<option value="pt-PT">🇵🇹 Portekizce</option>
-<option value="de-DE">🇩🇪 Almanca</option>
-</select>
-
-<select id="level-select" class="text-[11px] font-bold bg-purple-50/80 text-purple-700 px-3 py-1.5 rounded-xl border border-purple-100 focus:outline-none cursor-pointer">
-<option value="a1">Seviye: A1 (Başlangıç)</option>
-<option value="b1">Seviye: A1–B1 (Orta)</option>
-<option value="b2">Seviye: A1–B2+ (İleri)</option>
-</select>
-</div>
-</div>
-
-<!-- Üyelik Planı & Sınırsız Erişim Barı -->
-<div class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-purple-50/80 border border-indigo-100/70 text-xs">
-<div class="flex items-center gap-2 flex-wrap">
-<span id="current-plan-badge" class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[11px]">
-Ultra Premium • Yapımcı Modu
-</span>
-<span id="quota-text" class="text-slate-500 font-semibold text-[11px]">
-Pratik: Sınırsız
-</span>
-</div>
-<button id="open-plans-btn" type="button" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 shrink-0">
-Planlar / Test
-</button>
-</div>
-
-<!-- Ses Ayarları Paneli -->
-<div class="p-4 rounded-2xl bg-slate-50/90 border border-slate-100 space-y-3">
-<div class="flex items-center justify-between">
-<span class="text-xs font-bold text-slate-600">🎛️ Ses Stüdyosu Ayarları</span>
-<button id="toggle-auto-speak" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition">
-Sesli Yanıt: Açık
-</button>
-</div>
-
-<div class="grid grid-cols-2 gap-3 text-xs">
-<div>
-<label class="block text-slate-400 mb-1">Konuşma Hızı: <span id="rate-val" class="text-slate-700 font-bold">0.9x</span></label>
-<input id="voice-rate" type="range" min="0.6" max="1.3" step="0.1" value="0.9" class="w-full accent-teal-600">
-</div>
-<div>
-<label class="block text-slate-400 mb-1">Ses Tonu: <span id="pitch-val" class="text-slate-700 font-bold">1.0</span></label>
-<input id="voice-pitch" type="range" min="0.8" max="1.2" step="0.1" value="1.0" class="w-full accent-teal-600">
-</div>
-</div>
-
-<div>
-<label class="block text-[11px] text-slate-400 mb-1">Ses Karakteri</label>
-<select id="voice-select" class="w-full text-xs bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 focus:outline-none">
-<option value="">Varsayılan Doğal Ses</option>
-</select>
-</div>
-</div>
-
-<!-- AI Koç Sohbet Alanı -->
-<div class="p-4 rounded-2xl bg-gradient-to-b from-indigo-50/50 via-purple-50/40 to-rose-50/50 border border-indigo-100/60 space-y-3">
-<div class="flex items-center justify-between px-1">
-<div class="flex items-center gap-2">
-<div id="coach-mascot-wrap" onclick="resetMascotState()" title="Lingu durumunu sıfırla" class="mascot-avatar w-8 h-8 rounded-full bg-white border border-teal-200 flex items-center justify-center overflow-hidden shadow-sm cursor-pointer">
-<img id="coach-mascot-img" src="maskot.png" alt="Lingu" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" class="w-full h-full object-contain">
-<span class="hidden text-xs">🌸</span>
-</div>
-<div>
-<span class="text-[11px] font-bold text-teal-700 block leading-tight">Veloce Koç • Lingu</span>
-<span id="mascot-status-label" class="text-[10px] text-slate-400 leading-tight">Hazır</span>
-</div>
-</div>
-<span id="active-level-tag" class="text-[10px] text-slate-400">A1 • Sabırlı & Samimi Mod</span>
-</div>
-
-<div id="coach-chat" class="space-y-2.5 text-sm h-48 overflow-y-auto pr-1">
-<div class="bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2">
-<span>Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.</span>
-<button onclick="speakText('Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.', 'tr-TR')" type="button" class="text-teal-600 hover:text-teal-800 text-base shrink-0" title="Tekrar dinle">🔊</button>
-</div>
-</div>
-
-<!-- Mikrofon ve Yazılı Giriş -->
-<div class="pt-2 flex flex-col items-center gap-2.5">
-<button id="mic-btn" type="button" class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 hover:opacity-95 text-white flex items-center justify-center text-2xl shadow-lg transition transform active:scale-95">
-🎙️
-</button>
-<span id="mic-status" class="text-xs font-semibold text-slate-400">Konuşmak için mikrofona dokun</span>
-
-<div class="w-full flex gap-2 pt-1">
-<input id="user-input" type="text" placeholder="Veya buraya yaz..." class="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-teal-500 text-slate-700" />
-<button id="send-btn" type="button" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold transition">Gönder</button>
-</div>
-</div>
-</div>
-
-<!-- Kalıcı Silik Yapımcı İmzası -->
-<div class="pt-1 text-center">
-<p class="text-[10px] font-medium tracking-wider text-slate-400/50 select-none">
-© 2026 Veloce • Enes Emre Işık
-</p>
-</div>
-
-</div>
-
-<!-- Üyelik Planları & Hızlı Geçiş Penceresi -->
-<div id="plans-modal" onclick="handleBackdropClick(event)" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-<div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 space-y-3.5 border border-indigo-50 max-h-[90vh] overflow-y-auto">
-<div class="flex items-center justify-between">
-<div>
-<h2 class="text-lg font-bold text-slate-800">Veloce Plan Durumu</h2>
-<p class="text-[11px] text-slate-400">Tam erişim aktif; dilediğin plan görünümünü test edebilirsin</p>
-</div>
-<button id="close-plans-btn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold text-xs hover:bg-slate-200">✕</button>
-</div>
-
-<!-- Yapımcı Tam Erişim -->
-<div class="p-3.5 rounded-2xl border border-purple-300 bg-gradient-to-r from-indigo-50 via-purple-50 to-rose-50 flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-purple-700">Ultra Premium • Yapımcı Tam Erişim</div>
-<div class="text-[11px] text-slate-600">Sınırsız pratik • Tüm 7 dil • Tüm seviyeler (A1–B2+)</div>
-</div>
-<button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold hover:opacity-95 shrink-0">
-Tam Açık
-</button>
-</div>
-
-<!-- 5 Günlük Deneme Test -->
-<div class="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/60 flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-emerald-800">5 Günlük Ücretsiz Premium Deneme</div>
-<div class="text-[11px] text-emerald-700/90">5 gün • 7 dil • A1–B1 seviye (test görünümü)</div>
-</div>
-<button type="button" onclick="selectPlan('trial')" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shrink-0">
-Test Et
-</button>
-</div>
-
-<!-- Free Test -->
-<div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-slate-700">Free <span class="text-slate-400 font-semibold">• 0 TL</span></div>
-<div class="text-[11px] text-slate-500">Günlük 10 pratik • 4 temel dil • A1 başlangıç</div>
-</div>
-<button type="button" onclick="selectPlan('free')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-300 shrink-0">
-Test Et
-</button>
-</div>
-
-<!-- Premium Yıllık Test -->
-<div class="p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50 flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-indigo-700">Premium Yıllık <span class="text-indigo-500">• 800 TL / yıl</span></div>
-<div class="text-[11px] text-slate-600">Günlük 60 pratik • Tüm 7 dil • A1–B1 seviye</div>
-</div>
-<button type="button" onclick="selectPlan('premium')" class="px-3 py-1.5 rounded-xl bg-indigo-500 text-white text-xs font-bold hover:bg-indigo-600 shrink-0">
-Test Et
-</button>
-</div>
-
-<!-- Ultra Premium Yıllık -->
-<div class="p-3.5 rounded-2xl border border-indigo-100 bg-white flex items-center justify-between gap-3">
-<div>
-<div class="text-xs font-bold text-slate-800">Ultra Premium Yıllık <span class="text-purple-600">• 2500 TL / yıl</span></div>
-<div class="text-[11px] text-slate-500">Sınırsız pratik • Tüm 7 dil • A1–B2+ tüm seviyeler</div>
-</div>
-<button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 shrink-0">
-2500 TL Modu
-</button>
-</div>
-</div>
-</div>
-
-<script>
-let splashTimer = null;
-function dismissSplash() {
-if (splashTimer) {
-clearTimeout(splashTimer);
-splashTimer = null;
-}
-const splash = document.getElementById("splash-screen");
-if (splash) splash.classList.add("hidden-splash");
-}
-
-window.addEventListener("load", () => {
-splashTimer = setTimeout(dismissSplash, 1800);
-});
-
-const PLAN_CONFIG = {
-ultra: {
-label: "Ultra Premium • Yapımcı Modu",
-dailyLimit: Infinity,
-badgeClass: "bg-purple-100 text-purple-700",
-allowAllLangs: true,
-allowedLevels: ["a1", "b1", "b2"]
-},
-trial: {
-label: "5 Günlük Deneme (5g)",
-dailyLimit: 60,
-badgeClass: "bg-emerald-100 text-emerald-800",
-allowAllLangs: true,
-allowedLevels: ["a1", "b1"]
-},
-free: {
-label: "Free Plan",
-dailyLimit: 10,
-badgeClass: "bg-slate-200/80 text-slate-700",
-allowAllLangs: false,
-allowedLevels: ["a1"]
-},
-premium: {
-label: "Premium Yıllık",
-dailyLimit: 60,
-badgeClass: "bg-indigo-100 text-indigo-700",
-allowAllLangs: true,
-allowedLevels: ["a1", "b1"]
-}
-};
-
-let currentPlan = "ultra";
-let usedToday = 0;
-let autoSpeak = true;
-let step = 0;
-let mascotSafetyTimer = null;
-
-const chatBox = document.getElementById("coach-chat");
-const micBtn = document.getElementById("mic-btn");
-const micStatus = document.getElementById("mic-status");
-const userInput = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
-const targetLangSelect = document.getElementById("target-lang");
-const levelSelect = document.getElementById("level-select");
-const activeLevelTag = document.getElementById("active-level-tag");
-const voiceRate = document.getElementById("voice-rate");
-const voicePitch = document.getElementById("voice-pitch");
-const rateVal = document.getElementById("rate-val");
-const pitchVal = document.getElementById("pitch-val");
-const voiceSelect = document.getElementById("voice-select");
-const toggleAutoSpeak = document.getElementById("toggle-auto-speak");
-const currentPlanBadge = document.getElementById("current-plan-badge");
-const quotaText = document.getElementById("quota-text");
-const plansModal = document.getElementById("plans-modal");
-const openPlansBtn = document.getElementById("open-plans-btn");
-const closePlansBtn = document.getElementById("close-plans-btn");
-const coachMascotWrap = document.getElementById("coach-mascot-wrap");
-const mascotStatusLabel = document.getElementById("mascot-status-label");
-
-function clearMascotTimer() {
-if (mascotSafetyTimer) {
-clearTimeout(mascotSafetyTimer);
-mascotSafetyTimer = null;
-}
-}
-
-function setMascotState(state = "idle", maxDurationMs = 12000) {
-clearMascotTimer();
-if (!coachMascotWrap) return;
-
-coachMascotWrap.classList.remove("mascot-speaking", "mascot-listening", "mascot-thinking");
-
-if (state === "speaking") {
-coachMascotWrap.classList.add("mascot-speaking");
-if (mascotStatusLabel) mascotStatusLabel.textContent = "Konuşuyor";
-} else if (state === "listening") {
-coachMascotWrap.classList.add("mascot-listening");
-if (mascotStatusLabel) mascotStatusLabel.textContent = "Dinliyor";
-} else if (state === "thinking") {
-coachMascotWrap.classList.add("mascot-thinking");
-if (mascotStatusLabel) mascotStatusLabel.textContent = "Düşünüyor";
-} else {
-if (mascotStatusLabel) mascotStatusLabel.textContent = "Hazır";
-return;
-}
-
-// Tarayıcı onend tetiklemezse maskotun takılı kalmasını önleyen güvenlik süresi
-mascotSafetyTimer = setTimeout(() => {
-resetMascotState();
-}, maxDurationMs);
-}
-
-function resetMascotState() {
-clearMascotTimer();
-setMascotState("idle");
-}
-
-function updateLevelTag() {
-activeLevelTag.textContent = ${levelSelect.value.toUpperCase()} • Sabırlı & Samimi Mod`;
-}
-
-function updatePlanUI() {
-const cfg = PLAN_CONFIG[currentPlan];
-currentPlanBadge.textContent = cfg.label;
-currentPlanBadge.className = px-2.5 py-0.5 rounded-full font-bold text-[11px]${cfg.badgeClass}`;
-
-if (Number.isFinite(cfg.dailyLimit)) {
-const remaining = Math.max(0, cfg.dailyLimit - usedToday);
-quotaText.textContent = Kalan hak: ${remaining} / ${cfg.dailyLimit};
-} else {
-quotaText.textContent = Pratik: Sınırsız (${usedToday} yapıldı)`;
-}
-
-if (!cfg.allowedLevels.includes(levelSelect.value)) {
-levelSelect.value = cfg.allowedLevels[cfg.allowedLevels.length - 1];
-}
-updateLevelTag();
-}
-
-function openModal() {
-plansModal.classList.remove("hidden");
-plansModal.classList.add("flex");
-}
-
-function closeModal() {
-plansModal.classList.add("hidden");
-plansModal.classList.remove("flex");
-}
-
-function handleBackdropClick(e) {
-if (e.target === plansModal) closeModal();
-}
-
-document.addEventListener("keydown", (e) => {
-if (e.key === "Escape" && !plansModal.classList.contains("hidden")) {
-closeModal();
-}
-});
-
-function selectPlan(planKey) {
-currentPlan = planKey;
-closeModal();
-updatePlanUI();
-appendMessage(Mod "${PLAN_CONFIG[planKey].label}" olarak ayarlandı.`, "coach", "tr-TR");
-}
-
-openPlansBtn.addEventListener("click", openModal);
-closePlansBtn.addEventListener("click", closeModal);
-
-function canConsumeQuota() {
-const limit = PLAN_CONFIG[currentPlan].dailyLimit;
-if (!Number.isFinite(limit)) return true;
-if (usedToday >= limit) {
-appendMessage("Seçili test modunun günlük kotası doldu; pencereden Ultra Premium moduna dönebilirsin.", "coach", "tr-TR");
-openModal();
-return false;
-}
-return true;
-}
-
-voiceRate.addEventListener("input", () => { rateVal.textContent = voiceRate.value + "x"; });
-voicePitch.addEventListener("input", () => { pitchVal.textContent = voicePitch.value; });
-toggleAutoSpeak.addEventListener("click", () => {
-autoSpeak = !autoSpeak;
-toggleAutoSpeak.textContent = autoSpeak ? "Sesli Yanıt: Açık" : "Sesli Yanıt: Kapalı";
-toggleAutoSpeak.className = autoSpeak
-? "text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition"
-: "text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 transition";
-if (!autoSpeak && "speechSynthesis" in window) {
-window.speechSynthesis.cancel();
-resetMascotState();
-}
-});
-
-function loadVoices() {
-if (!("speechSynthesis" in window)) return;
-const voices = window.speechSynthesis.getVoices();
-const langPrefix = targetLangSelect.value.split("-")[0];
-voiceSelect.innerHTML = '<option value="">Varsayılan Doğal Ses</option>';
-voices.forEach((v, idx) => {
-if (v.lang.startsWith(langPrefix) || v.lang.startsWith("tr")) {
-const opt = document.createElement("option");
-opt.value = idx;
-opt.textContent = ${v.name} (${v.lang});
-voiceSelect.appendChild(opt);
-}
-});
-}
-if ("speechSynthesis" in window) {
-window.speechSynthesis.onvoiceschanged = loadVoices;
-}
-
-let previousLang = targetLangSelect.value;
-targetLangSelect.addEventListener("change", () => {
-const selectedOpt = targetLangSelect.options[targetLangSelect.selectedIndex];
-const freeLangs = ["en-US", "fr-FR", "es-ES", "tr-TR"];
-if (!PLAN_CONFIG[currentPlan].allowAllLangs && !freeLangs.includes(targetLangSelect.value)) {
-targetLangSelect.value = previousLang;
-appendMessage("Bu dil mevcut test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
-openModal();
-return;
-}
-previousLang = targetLangSelect.value;
-loadVoices();
-step = 0;
-appendMessage(Harika, ${selectedOpt.text} (${levelSelect.value.toUpperCase()}) çalışıyoruz! Hazırsan başlayalım., "coach", "tr-TR");
-});
-
-let previousLevel = levelSelect.value;
-levelSelect.addEventListener("change", () => {
-const chosenLevel = levelSelect.value;
-if (!PLAN_CONFIG[currentPlan].allowedLevels.includes(chosenLevel)) {
-levelSelect.value = previousLevel;
-appendMessage("Bu eğitim düzeyi seçili test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
-openModal();
-return;
-}
-previousLevel = chosenLevel;
-step = 0;
-updateLevelTag();
-appendMessage(Eğitim düzeyini ${chosenLevel.toUpperCase()} olarak ayarladık. Hadi başlayalım!`, "coach", "tr-TR");
-});
-
-function speakText(text, langOverride = null) {
-if (!("speechSynthesis" in window)) {
-resetMascotState();
-return;
-}
-window.speechSynthesis.cancel();
-resetMascotState();
-
-const utterance = new SpeechSynthesisUtterance(text);
-const targetCode = langOverride || targetLangSelect.value;
-utterance.lang = targetCode;
-utterance.rate = parseFloat(voiceRate.value);
-utterance.pitch = parseFloat(voicePitch.value);
-
-const voices = window.speechSynthesis.getVoices();
-if (voiceSelect.value !== "" && voices[voiceSelect.value]) {
-const chosenVoice = voices[voiceSelect.value];
-if (chosenVoice.lang.split("-")[0] === targetCode.split("-")[0]) {
-utterance.voice = chosenVoice;
-}
-}
-
-const estimatedMs = Math.max(2500, Math.min(20000, text.length * 75));
-utterance.onstart = () => setMascotState("speaking", estimatedMs);
-utterance.onend = () => resetMascotState();
-utterance.onerror = () => resetMascotState();
-
-setMascotState("speaking", estimatedMs);
-window.speechSynthesis.speak(utterance);
-}
-
-function appendMessage(text, sender = "coach", speakLang = null) {
-const bubble = document.createElement("div");
-if (sender === "coach") {
-bubble.className = "bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2";
-const span = document.createElement("span");
-span.textContent = text;
-const btn = document.createElement("button");
-btn.type = "button";
-btn.textContent = "🔊";
-btn.className = "text-teal-600 hover:text-teal-800 text-base shrink-0";
-btn.onclick = () => speakText(text, speakLang);
-bubble.appendChild(span);
-bubble.appendChild(btn);
-if (autoSpeak) {
-speakText(text, speakLang);
-} else {
-resetMascotState();
-}
-} else {
-bubble.className = "bg-teal-600 p-3 rounded-2xl rounded-tr-sm text-white ml-auto max-w-[85%] shadow-sm";
-bubble.textContent = text;
-}
-chatBox.appendChild(bubble);
-chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function processCoachResponse(userSpeech) {
-usedToday += 1;
-updatePlanUI();
-
-const lang = targetLangSelect.value;
-const level = levelSelect.value;
-const clean = userSpeech.toLowerCase().trim();
-
-if (level === "b2") {
-appendMessage((${level.toUpperCase()}) Harika ifade! "${userSpeech}" cümlesini daha doğal bir günlük kalıpla nasıl kurardın?, "coach", "tr-TR");
-return;
-}
-
-if (level === "b1") {
-if (clean.includes("how are you") || clean.includes("ça va") || clean.includes("good")) {
-appendMessage((${level.toUpperCase()}) Çok akıcı! Bugün vaktin olursa ne yapmayı planlıyorsun?, "coach", "tr-TR"); } else { appendMessage(({userSpeech}" dedin. Şimdi bunu tek bir kısa cümleyle açıklar mısın?`, "coach", "tr-TR");
-}
-return;
-}
-
-if (lang === "en-US") {
-if (step === 0) {
-if (clean.includes("hello") || clean.includes("hi")) {
-step = 1;
-appendMessage("Süper söyledin! Şimdi 'Nasılsın?' demeyi dener misin? (How are you?)", "coach", "tr-TR");
-} else {
-appendMessage('Çok yaklaştın! Bunu "Hello" diye söylüyoruz. Hadi bir kez daha söyle: Hello.', "coach", "tr-TR");
-}
-} else if (step === 1) {
-if (clean.includes("how are you")) {
-step = 2;
-appendMessage("Harikasın! Çok doğal çıktı. Peki, 'İyiyim, teşekkürler' nasıl dersin?", "coach", "tr-TR");
-} else {
-appendMessage('Sorun değil, çok normal. Doğrusu: "How are you?". Yavaşça tekrar eder misin?', "coach", "tr-TR");
-}
-} else {
-appendMessage("Çok iyi gidiyorsun! Şimdi söylemek istediğin başka bir cümle var mı?", "coach", "tr-TR");
-}
-} else if (lang === "fr-FR") {
-if (step === 0) {
-if (clean.includes("bonjour") || clean.includes("salut")) {
-step = 1;
-appendMessage("Harika telaffuz! Şimdi 'Nasılsın?' demeyi deneyelim: 'Ça va?' Söyler misin?", "coach", "tr-TR");
-} else {
-appendMessage("Hiç sorun değil! Fransızcada 'Merhaba' için "Bonjour" diyoruz. Hadi tekrar et: Bonjour.", "coach", "tr-TR");
-}
-} else {
-appendMessage("Çok güzel ilerliyorsun! Bir sonraki kelimemize geçelim mi?", "coach", "tr-TR");
-}
-} else {
-appendMessage(Harika deneme! "${userSpeech}" dedin. Bir cümle daha kuralım mı?, "coach", "tr-TR");
-}
-}
-
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (SpeechRecognition) {
-const recognition = new SpeechRecognition();
-recognition.interimResults = false;
-recognition.maxAlternatives = 1;
-
-micBtn.addEventListener("click", () => {
-if (!canConsumeQuota()) return;
-recognition.lang = targetLangSelect.value;
-try {
-recognition.start();
-micBtn.classList.add("listening");
-micStatus.textContent = "Seni dinliyorum... Konuşabilirsin";
-micStatus.classList.add("text-rose-500");
-setMascotState("listening", 10000);
-} catch (e) {
-micStatus.textContent = "Mikrofon başlatılamadı, tekrar dokunup dener misin?";
-resetMascotState();
-}
-});
-
-recognition.onresult = (event) => {
-const transcript = event.results[0][0].transcript;
-appendMessage(transcript, "user");
-setMascotState("thinking", 3000);
-setTimeout(() => processCoachResponse(transcript), 350);
-};
-
-recognition.onerror = (event) => {
-resetMascotState();
-if (event && event.error === "not-allowed") {
-micStatus.textContent = "Mikrofon izni kapalı; tarayıcı/uygulama ayarlarından izin ver.";
-} else {
-micStatus.textContent = "Sesini tam alamadım, tekrar dokunup dener misin?";
-}
-};
-
-recognition.onend = () => {
-micBtn.classList.remove("listening");
-micStatus.classList.remove("text-rose-500");
-micStatus.textContent = "Konuşmak için mikrofona dokun";
-if (!("speechSynthesis" in window) || !window.speechSynthesis.speaking) {
-resetMascotState();
-}
-};
-} else {
-micStatus.textContent = "Tarayıcın ses tanımayı desteklemiyor, alttan yazabilirsin.";
-}
-
-function handleTextSend() {
-const text = userInput.value.trim();
-if (!text) return;
-if (!canConsumeQuota()) return;
-appendMessage(text, "user");
-userInput.value = "";
-setMascotState("thinking", 3000);
-setTimeout(() => processCoachResponse(text), 300);
-}
-
-sendBtn.addEventListener("click", handleTextSend);
-userInput.addEventListener("keydown", (e) => {
-if (e.key === "Enter") handleTextSend();
-});
-
-updatePlanUI();
-resetMascotState();
-setTimeout(loadVoices, 300);
-</script>
+  <!-- Açılış Ekranı (Splash Screen) -->
+  <div id="splash-screen" onclick="dismissSplash()" class="fixed inset-0 z-50 flex flex-col items-center justify-between py-12 px-6 bg-gradient-to-br from-[#f8f7fc] via-[#f4f2fb] to-[#fdf6f8] cursor-pointer">
+    <div></div>
+    <div class="flex flex-col items-center text-center space-y-3">
+      <div class="w-24 h-24 rounded-3xl bg-white/90 shadow-md border border-teal-100 flex items-center justify-center overflow-hidden p-1.5">
+        <img src="maskot.png" alt="Lingu Maskot" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-contain rounded-2xl">
+        <span class="hidden w-full h-full items-center justify-center text-3xl">🌸</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="veloce-logo text-7xl font-bold select-none">Veloce</span>
+        <span class="w-2.5 h-2.5 rounded-full bg-teal-500 mt-5"></span>
+      </div>
+      <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Sesli AI Dil Koçu</p>
+    </div>
+    <div class="text-center">
+      <p class="text-[11px] font-medium tracking-wider text-slate-400/60 select-none">
+        © 2026 Veloce • Enes Emre Işık
+      </p>
+    </div>
+  </div>
+
+  <!-- Ana Uygulama Kartı -->
+  <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border border-white space-y-4">
+
+    <!-- Veloce Marka Başlığı, 7 Dil Seçici ve Eğitim Düzeyi -->
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <div class="flex items-center gap-1.5">
+          <h1 class="veloce-logo text-5xl font-bold select-none">Veloce</h1>
+          <span class="w-2 h-2 rounded-full bg-teal-500 mt-3"></span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-semibold tracking-wide mt-1">Akıcı konuş, kendi ritminde öğren</p>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <select id="target-lang" class="text-xs font-bold bg-indigo-50/80 text-indigo-600 px-3 py-2 rounded-2xl border border-indigo-100 focus:outline-none cursor-pointer">
+          <option value="en-US">🇬🇧 İngilizce</option>
+          <option value="fr-FR">🇫🇷 Fransızca</option>
+          <option value="es-ES">🇪🇸 İspanyolca</option>
+          <option value="tr-TR">🇹🇷 Türkçe</option>
+          <option value="ru-RU">🇷🇺 Rusça</option>
+          <option value="pt-PT">🇵🇹 Portekizce</option>
+          <option value="de-DE">🇩🇪 Almanca</option>
+        </select>
+
+        <select id="level-select" class="text-[11px] font-bold bg-purple-50/80 text-purple-700 px-3 py-1.5 rounded-xl border border-purple-100 focus:outline-none cursor-pointer">
+          <option value="a1">Seviye: A1 (Başlangıç)</option>
+          <option value="b1">Seviye: A1–B1 (Orta)</option>
+          <option value="b2">Seviye: A1–B2+ (İleri)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Üyelik Planı & Sınırsız Erişim Barı -->
+    <div class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-purple-50/80 border border-indigo-100/70 text-xs">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span id="current-plan-badge" class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[11px]">
+          Ultra Premium • Yapımcı Modu
+        </span>
+        <span id="quota-text" class="text-slate-500 font-semibold text-[11px]">
+          Pratik: Sınırsız
+        </span>
+      </div>
+      <button id="open-plans-btn" type="button" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 shrink-0">
+        Planlar / Test
+      </button>
+    </div>
+
+    <!-- Ses Ayarları Paneli -->
+    <div class="p-4 rounded-2xl bg-slate-50/90 border border-slate-100 space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-600">🎛️ Ses Stüdyosu Ayarları</span>
+        <button id="toggle-auto-speak" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition">
+          Sesli Yanıt: Açık
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Konuşma Hızı: <span id="rate-val" class="text-slate-700 font-bold">0.9x</span></label>
+          <input id="voice-rate" type="range" min="0.6" max="1.3" step="0.1" value="0.9" class="w-full accent-teal-600">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Ses Tonu: <span id="pitch-val" class="text-slate-700 font-bold">1.0</span></label>
+          <input id="voice-pitch" type="range" min="0.8" max="1.2" step="0.1" value="1.0" class="w-full accent-teal-600">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[11px] text-slate-400 mb-1">Ses Karakteri</label>
+        <select id="voice-select" class="w-full text-xs bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 focus:outline-none">
+          <option value="">Varsayılan Doğal Ses</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- AI Koç Sohbet Alanı -->
+    <div class="p-4 rounded-2xl bg-gradient-to-b from-indigo-50/50 via-purple-50/40 to-rose-50/50 border border-indigo-100/60 space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center gap-2">
+          <div id="coach-mascot-wrap" onclick="resetMascotState()" title="Lingu durumunu sıfırla" class="mascot-avatar w-8 h-8 rounded-full bg-white border border-teal-200 flex items-center justify-center overflow-hidden shadow-sm cursor-pointer">
+            <img id="coach-mascot-img" src="maskot.png" alt="Lingu" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" class="w-full h-full object-contain">
+            <span class="hidden text-xs">🌸</span>
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-teal-700 block leading-tight">Veloce Koç • Lingu</span>
+            <span id="mascot-status-label" class="text-[10px] text-slate-400 leading-tight">Hazır</span>
+          </div>
+        </div>
+        <span id="active-level-tag" class="text-[10px] text-slate-400">A1 • Sabırlı & Samimi Mod</span>
+      </div>
+
+      <div id="coach-chat" class="space-y-2.5 text-sm h-48 overflow-y-auto pr-1">
+        <div class="bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2">
+          <span>Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.</span>
+          <button onclick="speakText('Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.', 'tr-TR')" type="button" class="text-teal-600 hover:text-teal-800 text-base shrink-0" title="Tekrar dinle">🔊</button>
+        </div>
+      </div>
+
+      <!-- Mikrofon ve Yazılı Giriş -->
+      <div class="pt-2 flex flex-col items-center gap-2.5">
+        <button id="mic-btn" type="button" class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 hover:opacity-95 text-white flex items-center justify-center text-2xl shadow-lg transition transform active:scale-95">
+          🎙️
+        </button>
+        <span id="mic-status" class="text-xs font-semibold text-slate-400">Konuşmak için mikrofona dokun</span>
+
+        <div class="w-full flex gap-2 pt-1">
+          <input id="user-input" type="text" placeholder="Veya buraya yaz..." class="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-teal-500 text-slate-700" />
+          <button id="send-btn" type="button" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold transition">Gönder</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kalıcı Silik Yapımcı İmzası -->
+    <div class="pt-1 text-center">
+      <p class="text-[10px] font-medium tracking-wider text-slate-400/50 select-none">
+        © 2026 Veloce • Enes Emre Işık
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Üyelik Planları & Hızlı Geçiş Penceresi -->
+  <div id="plans-modal" onclick="handleBackdropClick(event)" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 space-y-3.5 border border-indigo-50 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">Veloce Plan Durumu</h2>
+          <p class="text-[11px] text-slate-400">Tam erişim aktif; dilediğin plan görünümünü test edebilirsin</p>
+        </div>
+        <button id="close-plans-btn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold text-xs hover:bg-slate-200">✕</button>
+      </div>
+
+      <!-- Yapımcı Tam Erişim -->
+      <div class="p-3.5 rounded-2xl border border-purple-300 bg-gradient-to-r from-indigo-50 via-purple-50 to-rose-50 flex items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-purple-700">Ultra Premium • Yapımcı Tam Erişim</div>
+          <div class="text-[11px] text-slate-600">Sınırsız pratik • Tüm 7 dil • Tüm seviyeler (A1–B2+)</div>
+        </div>
+        <button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold hover:opacity-95 shrink-0">
+          Tam Açık
+        </button>
+      </div>
+
+      <!-- 5 Günlük Deneme Test -->
+      <div class="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/60 flex items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-emerald-800">5 Günlük Ücretsiz Premium Deneme</div>
+          <div class="text-[11px] text-emerald-700/90">5 gün • 7 dil • A1–B1 seviye (test görünümü)</div>
+        </div>
+        <button type="button" onclick="selectPlan('trial')" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shrink-0">
+          Test Et
+        </button>
+      </div>
+
+      <!-- Free Test -->
+      <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-slate-700">Free <span class="text-slate-400 font-semibold">• 0 TL</span></div>
+          <div class="text-[11px] text-slate-500">Günlük 10 pratik • 4 temel dil • A1 başlangıç</div>
+        </div>
+        <button type="button" onclick="selectPlan('free')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-300 shrink-0">
+          Test Et
+        </button>
+      </div>
+
+      <!-- Premium Yıllık Test -->
+      <div class="p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50 flex items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-indigo-700">Premium Yıllık <span class="text-indigo-500">• 800 TL / yıl</span></div>
+          <div class="text-[11px] text-slate-600">Günlük 60 pratik • Tüm 7 dil • A1–B1 seviye</div>
+        </div>
+        <button type="button" onclick="selectPlan('premium')" class="px-3 py-1.5 rounded-xl bg-indigo-500 text-white text-xs font-bold hover:bg-indigo-600 shrink-0">
+          Test Et
+        </button>
+      </div>
+
+      <!-- Ultra Premium Yıllık -->
+      <div class="p-3.5 rounded-2xl border border-indigo-100 bg-white flex items-center justify-between gap-3">
+        <div>
+          <div class="text-xs font-bold text-slate-800">Ultra Premium Yıllık <span class="text-purple-600">• 2500 TL / yıl</span></div>
+          <div class="text-[11px] text-slate-500">Sınırsız pratik • Tüm 7 dil • A1–B2+ tüm seviyeler</div>
+        </div>
+        <button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 shrink-0">
+          2500 TL Modu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let splashClosed = false;
+    let splashFallbackTimer = null;
+
+    function dismissSplash() {
+      if (splashClosed) return;
+      splashClosed = true;
+      if (splashFallbackTimer) {
+        clearTimeout(splashFallbackTimer);
+        splashFallbackTimer = null;
+      }
+      const splash = document.getElementById("splash-screen");
+      if (!splash) return;
+      splash.classList.add("hidden-splash");
+      splash.style.opacity = "0";
+      splash.style.pointerEvents = "none";
+      setTimeout(() => {
+        splash.style.display = "none";
+        if (splash.parentNode) {
+          splash.remove();
+        }
+      }, 300);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(dismissSplash, 1300);
+      });
+    } else {
+      setTimeout(dismissSplash, 1300);
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(dismissSplash, 250);
+    });
+
+    splashFallbackTimer = setTimeout(dismissSplash, 1800);
+
+    const PLAN_CONFIG = {
+      ultra: {
+        label: "Ultra Premium • Yapımcı Modu",
+        dailyLimit: Infinity,
+        badgeClass: "bg-purple-100 text-purple-700",
+        allowAllLangs: true,
+        allowedLevels: ["a1", "b1", "b2"]
+      },
+      trial: {
+        label: "5 Günlük Deneme (5g)",
+        dailyLimit: 60,
+        badgeClass: "bg-emerald-100 text-emerald-800",
+        allowAllLangs: true,
+        allowedLevels: ["a1", "b1"]
+      },
+      free: {
+        label: "Free Plan",
+        dailyLimit: 10,
+        badgeClass: "bg-slate-200/80 text-slate-700",
+        allowAllLangs: false,
+        allowedLevels: ["a1"]
+      },
+      premium: {
+        label: "Premium Yıllık",
+        dailyLimit: 60,
+        badgeClass: "bg-indigo-100 text-indigo-700",
+        allowAllLangs: true,
+        allowedLevels: ["a1", "b1"]
+      }
+    };
+
+    let currentPlan = "ultra";
+    let usedToday = 0;
+    let autoSpeak = true;
+    let step = 0;
+    let mascotSafetyTimer = null;
+
+    const chatBox = document.getElementById("coach-chat");
+    const micBtn = document.getElementById("mic-btn");
+    const micStatus = document.getElementById("mic-status");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const targetLangSelect = document.getElementById("target-lang");
+    const levelSelect = document.getElementById("level-select");
+    const activeLevelTag = document.getElementById("active-level-tag");
+    const voiceRate = document.getElementById("voice-rate");
+    const voicePitch = document.getElementById("voice-pitch");
+    const rateVal = document.getElementById("rate-val");
+    const pitchVal = document.getElementById("pitch-val");
+    const voiceSelect = document.getElementById("voice-select");
+    const toggleAutoSpeak = document.getElementById("toggle-auto-speak");
+    const currentPlanBadge = document.getElementById("current-plan-badge");
+    const quotaText = document.getElementById("quota-text");
+    const plansModal = document.getElementById("plans-modal");
+    const openPlansBtn = document.getElementById("open-plans-btn");
+    const closePlansBtn = document.getElementById("close-plans-btn");
+    const coachMascotWrap = document.getElementById("coach-mascot-wrap");
+    const mascotStatusLabel = document.getElementById("mascot-status-label");
+
+    function clearMascotTimer() {
+      if (mascotSafetyTimer) {
+        clearTimeout(mascotSafetyTimer);
+        mascotSafetyTimer = null;
+      }
+    }
+
+    function setMascotState(state = "idle", maxDurationMs = 12000) {
+      clearMascotTimer();
+      if (!coachMascotWrap) return;
+
+      coachMascotWrap.classList.remove("mascot-speaking", "mascot-listening", "mascot-thinking");
+
+      if (state === "speaking") {
+        coachMascotWrap.classList.add("mascot-speaking");
+        if (mascotStatusLabel) mascotStatusLabel.textContent = "Konuşuyor";
+      } else if (state === "listening") {
+        coachMascotWrap.classList.add("mascot-listening");
+        if (mascotStatusLabel) mascotStatusLabel.textContent = "Dinliyor";
+      } else if (state === "thinking") {
+        coachMascotWrap.classList.add("mascot-thinking");
+        if (mascotStatusLabel) mascotStatusLabel.textContent = "Düşünüyor";
+      } else {
+        if (mascotStatusLabel) mascotStatusLabel.textContent = "Hazır";
+        return;
+      }
+
+      // Tarayıcı onend tetiklemezse maskotun takılı kalmasını önleyen güvenlik süresi
+      mascotSafetyTimer = setTimeout(() => {
+        resetMascotState();
+      }, maxDurationMs);
+    }
+
+    function resetMascotState() {
+      clearMascotTimer();
+      setMascotState("idle");
+    }
+
+    function updateLevelTag() {
+      activeLevelTag.textContent = `${levelSelect.value.toUpperCase()} • Sabırlı & Samimi Mod`;
+    }
+
+    function updatePlanUI() {
+      const cfg = PLAN_CONFIG[currentPlan];
+      currentPlanBadge.textContent = cfg.label;
+      currentPlanBadge.className = `px-2.5 py-0.5 rounded-full font-bold text-[11px] ${cfg.badgeClass}`;
+
+      if (Number.isFinite(cfg.dailyLimit)) {
+        const remaining = Math.max(0, cfg.dailyLimit - usedToday);
+        quotaText.textContent = `Kalan hak: ${remaining} / ${cfg.dailyLimit}`;
+      } else {
+        quotaText.textContent = `Pratik: Sınırsız (${usedToday} yapıldı)`;
+      }
+
+      if (!cfg.allowedLevels.includes(levelSelect.value)) {
+        levelSelect.value = cfg.allowedLevels[cfg.allowedLevels.length - 1];
+      }
+      updateLevelTag();
+    }
+
+    function openModal() {
+      plansModal.classList.remove("hidden");
+      plansModal.classList.add("flex");
+    }
+
+    function closeModal() {
+      plansModal.classList.add("hidden");
+      plansModal.classList.remove("flex");
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target === plansModal) closeModal();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !plansModal.classList.contains("hidden")) {
+        closeModal();
+      }
+    });
+
+    function selectPlan(planKey) {
+      currentPlan = planKey;
+      closeModal();
+      updatePlanUI();
+      appendMessage(`Mod "${PLAN_CONFIG[planKey].label}" olarak ayarlandı.`, "coach", "tr-TR");
+    }
+
+    openPlansBtn.addEventListener("click", openModal);
+    closePlansBtn.addEventListener("click", closeModal);
+
+    function canConsumeQuota() {
+      const limit = PLAN_CONFIG[currentPlan].dailyLimit;
+      if (!Number.isFinite(limit)) return true;
+      if (usedToday >= limit) {
+        appendMessage("Seçili test modunun günlük kotası doldu; pencereden Ultra Premium moduna dönebilirsin.", "coach", "tr-TR");
+        openModal();
+        return false;
+      }
+      return true;
+    }
+
+    voiceRate.addEventListener("input", () => { rateVal.textContent = voiceRate.value + "x"; });
+    voicePitch.addEventListener("input", () => { pitchVal.textContent = voicePitch.value; });
+    toggleAutoSpeak.addEventListener("click", () => {
+      autoSpeak = !autoSpeak;
+      toggleAutoSpeak.textContent = autoSpeak ? "Sesli Yanıt: Açık" : "Sesli Yanıt: Kapalı";
+      toggleAutoSpeak.className = autoSpeak
+        ? "text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition"
+        : "text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 transition";
+      if (!autoSpeak && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        resetMascotState();
+      }
+    });
+
+    function loadVoices() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      const langPrefix = targetLangSelect.value.split("-")[0];
+      voiceSelect.innerHTML = '<option value="">Varsayılan Doğal Ses</option>';
+      voices.forEach((v, idx) => {
+        if (v.lang.startsWith(langPrefix) || v.lang.startsWith("tr")) {
+          const opt = document.createElement("option");
+          opt.value = idx;
+          opt.textContent = `${v.name} (${v.lang})`;
+          voiceSelect.appendChild(opt);
+        }
+      });
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    let previousLang = targetLangSelect.value;
+    targetLangSelect.addEventListener("change", () => {
+      const selectedOpt = targetLangSelect.options[targetLangSelect.selectedIndex];
+      const freeLangs = ["en-US", "fr-FR", "es-ES", "tr-TR"];
+      if (!PLAN_CONFIG[currentPlan].allowAllLangs && !freeLangs.includes(targetLangSelect.value)) {
+        targetLangSelect.value = previousLang;
+        appendMessage("Bu dil mevcut test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
+        openModal();
+        return;
+      }
+      previousLang = targetLangSelect.value;
+      loadVoices();
+      step = 0;
+      appendMessage(`Harika, ${selectedOpt.text} (${levelSelect.value.toUpperCase()}) çalışıyoruz! Hazırsan başlayalım.`, "coach", "tr-TR");
+    });
+
+    let previousLevel = levelSelect.value;
+    levelSelect.addEventListener("change", () => {
+      const chosenLevel = levelSelect.value;
+      if (!PLAN_CONFIG[currentPlan].allowedLevels.includes(chosenLevel)) {
+        levelSelect.value = previousLevel;
+        appendMessage("Bu eğitim düzeyi seçili test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
+        openModal();
+        return;
+      }
+      previousLevel = chosenLevel;
+      step = 0;
+      updateLevelTag();
+      appendMessage(`Eğitim düzeyini ${chosenLevel.toUpperCase()} olarak ayarladık. Hadi başlayalım!`, "coach", "tr-TR");
+    });
+
+    function speakText(text, langOverride = null) {
+      if (!("speechSynthesis" in window)) {
+        resetMascotState();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      resetMascotState();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      const targetCode = langOverride || targetLangSelect.value;
+      utterance.lang = targetCode;
+      utterance.rate = parseFloat(voiceRate.value);
+      utterance.pitch = parseFloat(voicePitch.value);
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voiceSelect.value !== "" && voices[voiceSelect.value]) {
+        const chosenVoice = voices[voiceSelect.value];
+        if (chosenVoice.lang.split("-")[0] === targetCode.split("-")[0]) {
+          utterance.voice = chosenVoice;
+        }
+      }
+
+      const estimatedMs = Math.max(2500, Math.min(20000, text.length * 75));
+      utterance.onstart = () => setMascotState("speaking", estimatedMs);
+      utterance.onend = () => resetMascotState();
+      utterance.onerror = () => resetMascotState();
+
+      setMascotState("speaking", estimatedMs);
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function appendMessage(text, sender = "coach", speakLang = null) {
+      const bubble = document.createElement("div");
+      if (sender === "coach") {
+        bubble.className = "bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2";
+        const span = document.createElement("span");
+        span.textContent = text;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "🔊";
+        btn.className = "text-teal-600 hover:text-teal-800 text-base shrink-0";
+        btn.onclick = () => speakText(text, speakLang);
+        bubble.appendChild(span);
+        bubble.appendChild(btn);
+        if (autoSpeak) {
+          speakText(text, speakLang);
+        } else {
+          resetMascotState();
+        }
+      } else {
+        bubble.className = "bg-teal-600 p-3 rounded-2xl rounded-tr-sm text-white ml-auto max-w-[85%] shadow-sm";
+        bubble.textContent = text;
+      }
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function processCoachResponse(userSpeech) {
+      usedToday += 1;
+      updatePlanUI();
+
+      const lang = targetLangSelect.value;
+      const level = levelSelect.value;
+      const clean = userSpeech.toLowerCase().trim();
+
+      if (level === "b2") {
+        appendMessage(`(${level.toUpperCase()}) Harika ifade! "${userSpeech}" cümlesini daha doğal bir günlük kalıpla nasıl kurardın?`, "coach", "tr-TR");
+        return;
+      }
+
+      if (level === "b1") {
+        if (clean.includes("how are you") || clean.includes("ça va") || clean.includes("good")) {
+          appendMessage(`(${level.toUpperCase()}) Çok akıcı! Bugün vaktin olursa ne yapmayı planlıyorsun?`, "coach", "tr-TR");
+        } else {
+          appendMessage(`(${level.toUpperCase()}) Güzel deneme! "${userSpeech}" dedin. Şimdi bunu tek bir kısa cümleyle açıklar mısın?`, "coach", "tr-TR");
+        }
+        return;
+      }
+
+      if (lang === "en-US") {
+        if (step === 0) {
+          if (clean.includes("hello") || clean.includes("hi")) {
+            step = 1;
+            appendMessage("Süper söyledin! Şimdi 'Nasılsın?' demeyi dener misin? (How are you?)", "coach", "tr-TR");
+          } else {
+            appendMessage('Çok yaklaştın! Bunu "Hello" diye söylüyoruz. Hadi bir kez daha söyle: Hello.', "coach", "tr-TR");
+          }
+        } else if (step === 1) {
+          if (clean.includes("how are you")) {
+            step = 2;
+            appendMessage("Harikasın! Çok doğal çıktı. Peki, 'İyiyim, teşekkürler' nasıl dersin?", "coach", "tr-TR");
+          } else {
+            appendMessage('Sorun değil, çok normal. Doğrusu: "How are you?". Yavaşça tekrar eder misin?', "coach", "tr-TR");
+          }
+        } else {
+          appendMessage("Çok iyi gidiyorsun! Şimdi söylemek istediğin başka bir cümle var mı?", "coach", "tr-TR");
+        }
+      } else if (lang === "fr-FR") {
+        if (step === 0) {
+          if (clean.includes("bonjour") || clean.includes("salut")) {
+            step = 1;
+            appendMessage("Harika telaffuz! Şimdi 'Nasılsın?' demeyi deneyelim: 'Ça va?' Söyler misin?", "coach", "tr-TR");
+          } else {
+            appendMessage("Hiç sorun değil! Fransızcada 'Merhaba' için \"Bonjour\" diyoruz. Hadi tekrar et: Bonjour.", "coach", "tr-TR");
+          }
+        } else {
+          appendMessage("Çok güzel ilerliyorsun! Bir sonraki kelimemize geçelim mi?", "coach", "tr-TR");
+        }
+      } else {
+        appendMessage(`Harika deneme! "${userSpeech}" dedin. Bir cümle daha kuralım mı?`, "coach", "tr-TR");
+      }
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      micBtn.addEventListener("click", () => {
+        if (!canConsumeQuota()) return;
+        recognition.lang = targetLangSelect.value;
+        try {
+          recognition.start();
+          micBtn.classList.add("listening");
+          micStatus.textContent = "Seni dinliyorum... Konuşabilirsin";
+          micStatus.classList.add("text-rose-500");
+          setMascotState("listening", 10000);
+        } catch (e) {
+          micStatus.textContent = "Mikrofon başlatılamadı, tekrar dokunup dener misin?";
+          resetMascotState();
+        }
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        appendMessage(transcript, "user");
+        setMascotState("thinking", 3000);
+        setTimeout(() => processCoachResponse(transcript), 350);
+      };
+
+      recognition.onerror = (event) => {
+        resetMascotState();
+        if (event && event.error === "not-allowed") {
+          micStatus.textContent = "Mikrofon izni kapalı; tarayıcı/uygulama ayarlarından izin ver.";
+        } else {
+          micStatus.textContent = "Sesini tam alamadım, tekrar dokunup dener misin?";
+        }
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove("listening");
+        micStatus.classList.remove("text-rose-500");
+        micStatus.textContent = "Konuşmak için mikrofona dokun";
+        if (!("speechSynthesis" in window) || !window.speechSynthesis.speaking) {
+          resetMascotState();
+        }
+      };
+    } else {
+      micStatus.textContent = "Tarayıcın ses tanımayı desteklemiyor, alttan yazabilirsin.";
+    }
+
+    function handleTextSend() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      if (!canConsumeQuota()) return;
+      appendMessage(text, "user");
+      userInput.value = "";
+      setMascotState("thinking", 3000);
+      setTimeout(() => processCoachResponse(text), 350);
+    }
+
+    sendBtn.addEventListener("click", handleTextSend);
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleTextSend();
+    });
+
+    updatePlanUI();
+    resetMascotState();
+    setTimeout(loadVoices, 300);
+  </script>
 </body>
 </html>
