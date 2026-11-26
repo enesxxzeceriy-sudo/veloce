@@ -1,739 +1,1510 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Veloce — Sesli AI Dil Koçu</title>
+  <title>Veloce AI v3.0 — Akıllı Dil Koçu & Konuşma Akademisi</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Quicksand', sans-serif;
-      background: linear-gradient(135deg, #f8f7fc 0%, #f3f6fb 50%, #fdf6f8 100%);
-      color: #3b4252;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #FDFBF7 0%, #F0F9F8 55%, #FFF5F2 100%);
+      color: #1E293B;
     }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(10, 186, 181, 0.16);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Mevcut Caveat yazı stili korunarak su yeşili ton ve kesik 'e' harfi düzeltmesi */
-    .veloce-logo {
-      font-family: 'Caveat', cursive;
-      color: #0d9488;
-      -webkit-text-fill-color: #0d9488;
-      background: none;
-      line-height: 1.3;
-      letter-spacing: 0.02em;
-      padding-right: 4px;
-      display: inline-block;
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
     }
+    .lingu-idle { animation: floatSlow 3.2s ease-in-out infinite; }
 
-    @keyframes pulse-ring {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
-      70% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(99, 102, 241, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    @keyframes mascotWave {
+      0%, 100% { transform: translateY(0px) rotate(-3deg) scale(1); }
+      50% { transform: translateY(-10px) rotate(4deg) scale(1.05); }
     }
+    .splash-mascot { animation: mascotWave 1.6s ease-in-out infinite; }
 
-    .listening {
-      animation: pulse-ring 1.5s infinite;
-      background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
+    @keyframes pulseTalk {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
     }
+    .lingu-speaking { animation: pulseTalk 0.6s ease-in-out infinite; }
 
-    /* Lingu maskot durum animasyonları */
-    @keyframes mascot-speak {
-      0%, 100% { transform: scale(1) translateY(0); }
-      50% { transform: scale(1.08) translateY(-2px); }
+    .flip-card { perspective: 1000px; }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
     }
-
-    @keyframes mascot-listen {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.05) rotate(-4deg); }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
-
-    .mascot-avatar {
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    }
-
-    .mascot-speaking {
-      animation: mascot-speak 0.65s ease-in-out infinite;
-      border-color: #14b8a6 !important;
-      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.22);
-    }
-
-    .mascot-listening {
-      animation: mascot-listen 0.8s ease-in-out infinite;
-      border-color: #f43f5e !important;
-      box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.22);
-    }
-
-    .mascot-thinking {
-      transform: scale(1.03);
-      border-color: #6366f1 !important;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
-    }
-
-    #splash-screen {
-      transition: opacity 0.45s ease, visibility 0.45s ease;
-    }
-    #splash-screen.hidden-splash {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
+    .flip-back { transform: rotateY(180deg); }
   </style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 flex flex-col items-center justify-center relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col">
 
-  <!-- Açılış Ekranı (Splash Screen) -->
-  <div id="splash-screen" onclick="dismissSplash()" class="fixed inset-0 z-50 flex flex-col items-center justify-between py-12 px-6 bg-gradient-to-br from-[#f8f7fc] via-[#f4f2fb] to-[#fdf6f8] cursor-pointer">
-    <div></div>
-    <div class="flex flex-col items-center text-center space-y-3">
-      <div class="w-24 h-24 rounded-3xl bg-white/90 shadow-md border border-teal-100 flex items-center justify-center overflow-hidden p-1.5">
-        <img src="maskot.png" alt="Lingu Maskot" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-contain rounded-2xl">
-        <span class="hidden w-full h-full items-center justify-center text-3xl">🌸</span>
+  <!-- BAŞLANGIÇ MASKOTU (SPLASH SCREEN) -->
+  <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-[#FDFBF7] via-[#EBF9F8] to-[#FFF2EE] transition-opacity duration-500 px-6 text-center">
+    <div class="relative mb-5">
+      <div class="absolute -inset-4 rounded-full bg-teal-300/25 blur-xl animate-pulse"></div>
+      <div class="relative w-28 h-28 rounded-[2rem] bg-gradient-to-br from-[#0ABAB5] to-[#089692] flex items-center justify-center shadow-2xl shadow-teal-300/60 splash-mascot">
+        <svg class="w-20 h-20" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="12" r="8.5" fill="#FF8A75"/>
+          <circle cx="50" cy="24" r="8.5" fill="#FFB3A5"/>
+          <circle cx="44" cy="46" r="8.5" fill="#FF8A75"/>
+          <circle cx="20" cy="46" r="8.5" fill="#FFB3A5"/>
+          <circle cx="14" cy="24" r="8.5" fill="#FF8A75"/>
+          <circle cx="32" cy="30" r="14.5" fill="#FFFDF9"/>
+          <circle cx="26.5" cy="27.5" r="2.4" fill="#1E293B"/>
+          <circle cx="37.5" cy="27.5" r="2.4" fill="#1E293B"/>
+          <circle cx="23.5" cy="31.5" r="2" fill="#FF9E8D" opacity="0.7"/>
+          <circle cx="40.5" cy="31.5" r="2" fill="#FF9E8D" opacity="0.7"/>
+          <path d="M26.5 34 Q32 39 37.5 34" stroke="#0ABAB5" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+        </svg>
       </div>
-      <div class="flex items-center gap-1.5">
-        <span class="veloce-logo text-7xl font-bold select-none">Veloce</span>
-        <span class="w-2.5 h-2.5 rounded-full bg-teal-500 mt-5"></span>
-      </div>
-      <p class="text-xs text-slate-400 font-semibold tracking-widest uppercase">Sesli AI Dil Koçu</p>
     </div>
-    <div class="text-center">
-      <p class="text-[11px] font-medium tracking-wider text-slate-400/60 select-none">
-        © 2026 Veloce • Enes Emre Işık
-      </p>
+
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-teal-200 text-[11px] font-bold text-[#089692] mb-2 shadow-sm">
+      <span>✨ Merhaba! Ben Lingu</span>
     </div>
+    <h1 class="text-3xl font-extrabold tracking-tight text-slate-800">
+      Veloce <span class="text-[#0ABAB5]">AI</span>
+    </h1>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-xs">
+      Kişisel yapay zekâ dil öğretmenin ve konuşma akademin hazırlanıyor...
+    </p>
+
+    <div class="w-48 h-2 bg-teal-100 rounded-full overflow-hidden mt-5 shadow-inner">
+      <div id="splashProgressBar" class="h-full bg-gradient-to-r from-[#0ABAB5] to-[#FF6F61] rounded-full transition-all duration-700" style="width: 25%"></div>
+    </div>
+
+    <button type="button" id="enterAppBtn" class="mt-5 px-5 py-2 rounded-xl bg-white border border-teal-200 text-xs font-bold text-[#089692] shadow-sm hover:bg-teal-50 transition">
+      Hemen Başla →
+    </button>
   </div>
 
-  <!-- Ana Uygulama Kartı -->
-  <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border border-white space-y-4">
-
-    <!-- Veloce Marka Başlığı, 7 Dil Seçici ve Eğitim Düzeyi -->
-    <div class="flex items-start justify-between gap-2">
-      <div>
-        <div class="flex items-center gap-1.5">
-          <h1 class="veloce-logo text-5xl font-bold select-none">Veloce</h1>
-          <span class="w-2 h-2 rounded-full bg-teal-500 mt-3"></span>
+  <!-- ÜST BİLGİ ÇUBUĞU -->
+  <header class="sticky top-0 z-30 glass-card border-b border-teal-100/80 px-4 py-3">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div id="linguAvatar" class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0ABAB5] to-[#089692] flex items-center justify-center shadow-md shadow-teal-200/60 lingu-idle shrink-0">
+          <svg class="w-7 h-7" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="12" r="8" fill="#FF8A75"/>
+            <circle cx="50" cy="24" r="8" fill="#FFB3A5"/>
+            <circle cx="44" cy="46" r="8" fill="#FF8A75"/>
+            <circle cx="20" cy="46" r="8" fill="#FFB3A5"/>
+            <circle cx="14" cy="24" r="8" fill="#FF8A75"/>
+            <circle cx="32" cy="30" r="14" fill="#FFFDF9"/>
+            <circle cx="27" cy="28" r="2.2" fill="#1E293B"/>
+            <circle cx="37" cy="28" r="2.2" fill="#1E293B"/>
+            <path d="M27 34 Q32 38 37 34" stroke="#0ABAB5" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          </svg>
         </div>
-        <p class="text-[11px] text-slate-400 font-semibold tracking-wide mt-1">Akıcı konuş, kendi ritminde öğren</p>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-slate-800">Veloce <span class="text-[#0ABAB5]">AI</span></h1>
+            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-teal-50 text-[#089692] border border-teal-200">v3.0 Pro</span>
+          </div>
+          <p id="linguStatusText" class="text-xs text-slate-500">Lingu AI • Gerçek Zamanlı Dil Öğretmeni</p>
+        </div>
       </div>
 
-      <div class="flex flex-col gap-1.5">
-        <select id="target-lang" class="text-xs font-bold bg-indigo-50/80 text-indigo-600 px-3 py-2 rounded-2xl border border-indigo-100 focus:outline-none cursor-pointer">
-          <option value="en-US">🇬🇧 İngilizce</option>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="languageSelect" class="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-2 focus:outline-none focus:border-[#0ABAB5]">
+          <option value="en-US">🇺🇸 İngilizce</option>
           <option value="fr-FR">🇫🇷 Fransızca</option>
           <option value="es-ES">🇪🇸 İspanyolca</option>
-          <option value="tr-TR">🇹🇷 Türkçe</option>
+          <option value="de-DE">🇩🇪 Almanca</option>
           <option value="ru-RU">🇷🇺 Rusça</option>
           <option value="pt-PT">🇵🇹 Portekizce</option>
-          <option value="de-DE">🇩🇪 Almanca</option>
+          <option value="tr-TR">🇹🇷 Türkçe</option>
         </select>
 
-        <select id="level-select" class="text-[11px] font-bold bg-purple-50/80 text-purple-700 px-3 py-1.5 rounded-xl border border-purple-100 focus:outline-none cursor-pointer">
-          <option value="a1">Seviye: A1 (Başlangıç)</option>
-          <option value="b1">Seviye: A1–B1 (Orta)</option>
-          <option value="b2">Seviye: A1–B2+ (İleri)</option>
+        <select id="levelSelect" class="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-2.5 py-2 focus:outline-none focus:border-[#0ABAB5]">
+          <option value="A1">A1 Başlangıç</option>
+          <option value="A2">A2 Temel</option>
+          <option value="B1" selected>B1 Orta</option>
+          <option value="B2">B2 Orta-Üstü</option>
+          <option value="C1">C1 İleri</option>
         </select>
+
+        <div class="flex items-center gap-1.5 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-700">
+          <span>🔥</span><span id="streakCount">1</span><span>Gün</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-teal-50 border border-teal-200/80 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#089692]">
+          <span>⚡</span><span id="xpCount">0</span><span>XP</span>
+        </div>
       </div>
     </div>
+  </header>
 
-    <!-- Üyelik Planı & Sınırsız Erişim Barı -->
-    <div class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-purple-50/80 border border-indigo-100/70 text-xs">
-      <div class="flex items-center gap-2 flex-wrap">
-        <span id="current-plan-badge" class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[11px]">
-          Ultra Premium • Yapımcı Modu
-        </span>
-        <span id="quota-text" class="text-slate-500 font-semibold text-[11px]">
-          Pratik: Sınırsız
-        </span>
+  <!-- GÜNLÜK ÖĞRENME HEDEFLERİ -->
+  <section class="max-w-5xl w-full mx-auto px-4 pt-3">
+    <div class="glass-card rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🎯</span>
+        <div>
+          <p class="text-xs font-bold text-slate-800">Günlük Öğrenme Hedefleri</p>
+          <p class="text-[11px] text-slate-500">Görevleri tamamla ve +50 Bonus XP kazan</p>
+        </div>
       </div>
-      <button id="open-plans-btn" type="button" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 shrink-0">
-        Planlar / Test
+      <div id="dailyGoalsContainer" class="flex flex-wrap items-center gap-2"></div>
+    </div>
+  </section>
+
+  <!-- SEKME NAVİGASYONU -->
+  <nav class="max-w-5xl w-full mx-auto px-4 pt-3">
+    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+      <button type="button" data-tab="chat" class="tab-btn active px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0ABAB5] text-white shadow-sm whitespace-nowrap transition">
+        💬 Lingu AI Sohbet
+      </button>
+      <button type="button" data-tab="academy" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-teal-300 whitespace-nowrap transition">
+        🎭 Konuşma Akademisi
+      </button>
+      <button type="button" data-tab="vocab" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-teal-300 whitespace-nowrap transition">
+        🃏 Kelime Kartları
+      </button>
+      <button type="button" data-tab="pronunciation" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-teal-300 whitespace-nowrap transition">
+        🎙️ Telaffuz Stüdyosu
+      </button>
+      <button type="button" data-tab="stats" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-teal-300 whitespace-nowrap transition">
+        🧠 Ders & İstatistik
       </button>
     </div>
+  </nav>
 
-    <!-- Ses Ayarları Paneli -->
-    <div class="p-4 rounded-2xl bg-slate-50/90 border border-slate-100 space-y-3">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-slate-600">🎛️ Ses Stüdyosu Ayarları</span>
-        <button id="toggle-auto-speak" type="button" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition">
-          Sesli Yanıt: Açık
-        </button>
-      </div>
+  <!-- ANA İÇERİK ALANI -->
+  <main class="max-w-5xl w-full mx-auto px-4 py-3 flex-1 flex flex-col">
 
-      <div class="grid grid-cols-2 gap-3 text-xs">
-        <div>
-          <label class="block text-slate-400 mb-1">Konuşma Hızı: <span id="rate-val" class="text-slate-700 font-bold">0.9x</span></label>
-          <input id="voice-rate" type="range" min="0.6" max="1.3" step="0.1" value="0.9" class="w-full accent-teal-600">
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-1">Ses Tonu: <span id="pitch-val" class="text-slate-700 font-bold">1.0</span></label>
-          <input id="voice-pitch" type="range" min="0.8" max="1.2" step="0.1" value="1.0" class="w-full accent-teal-600">
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-[11px] text-slate-400 mb-1">Ses Karakteri</label>
-        <select id="voice-select" class="w-full text-xs bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 focus:outline-none">
-          <option value="">Varsayılan Doğal Ses</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- AI Koç Sohbet Alanı -->
-    <div class="p-4 rounded-2xl bg-gradient-to-b from-indigo-50/50 via-purple-50/40 to-rose-50/50 border border-indigo-100/60 space-y-3">
-      <div class="flex items-center justify-between px-1">
+    <!-- 1. LINGU AI SOHBET -->
+    <section id="tab-chat" class="tab-panel flex-1 flex flex-col glass-card rounded-3xl shadow-sm overflow-hidden">
+      <div class="px-4 py-2.5 bg-teal-50/70 border-b border-teal-100 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <div id="coach-mascot-wrap" onclick="resetMascotState()" title="Lingu durumunu sıfırla" class="mascot-avatar w-8 h-8 rounded-full bg-white border border-teal-200 flex items-center justify-center overflow-hidden shadow-sm cursor-pointer">
-            <img id="coach-mascot-img" src="maskot.png" alt="Lingu" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" class="w-full h-full object-contain">
-            <span class="hidden text-xs">🌸</span>
-          </div>
-          <div>
-            <span class="text-[11px] font-bold text-teal-700 block leading-tight">Veloce Koç • Lingu</span>
-            <span id="mascot-status-label" class="text-[10px] text-slate-400 leading-tight">Hazır</span>
-          </div>
+          <span id="scenarioBadge" class="text-xs font-bold text-[#089692]">Serbest Konuşma Modu</span>
+          <button type="button" id="exitScenarioBtn" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200">
+            Senaryodan Çık
+          </button>
         </div>
-        <span id="active-level-tag" class="text-[10px] text-slate-400">A1 • Sabırlı & Samimi Mod</span>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="voiceSelect" class="text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 max-w-[175px] truncate" title="Ses Karakteri">
+            <option value="gemini:Puck">🎙️ Lingu AI Erkek (Puck)</option>
+            <option value="gemini:Charon">🎙️ Lingu AI Bariton (Charon)</option>
+            <option value="gemini:Fenrir">🎙️ Lingu AI Enerjik (Fenrir)</option>
+            <option value="gemini:Kore">🎙️ Lingu AI Kadın (Kore)</option>
+          </select>
+          <button type="button" id="testVoiceBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white border border-teal-200 text-[#089692] hover:bg-teal-50">
+            🔊 Sesi Test Et
+          </button>
+          <label class="flex items-center gap-1 text-[11px] font-semibold text-slate-600 cursor-pointer">
+            <input type="checkbox" id="autoSpeakToggle" checked class="accent-[#0ABAB5]">
+            Otomatik Oku
+          </label>
+          <button type="button" id="newChatBtn" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-white hover:bg-slate-700">
+            + Yeni Sohbet
+          </button>
+        </div>
       </div>
 
-      <div id="coach-chat" class="space-y-2.5 text-sm h-48 overflow-y-auto pr-1">
-        <div class="bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2">
-          <span>Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.</span>
-          <button onclick="speakText('Selam Emre! Tüm planlar ve 7 dil tam açık. Hazırsan mikrofona dokun ve konuşmaya başla.', 'tr-TR')" type="button" class="text-teal-600 hover:text-teal-800 text-base shrink-0" title="Tekrar dinle">🔊</button>
-        </div>
-      </div>
+      <div id="chatMessages" class="flex-1 p-4 space-y-3 overflow-y-auto min-h-[320px] max-h-[54vh]"></div>
+      <div id="quickPrompts" class="px-4 py-2 border-t border-slate-100 bg-slate-50/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
 
-      <!-- Mikrofon ve Yazılı Giriş -->
-      <div class="pt-2 flex flex-col items-center gap-2.5">
-        <button id="mic-btn" type="button" class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-600 to-emerald-500 hover:opacity-95 text-white flex items-center justify-center text-2xl shadow-lg transition transform active:scale-95">
+      <form id="chatForm" class="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+        <button type="button" id="micChatBtn" class="p-3 rounded-2xl bg-rose-50 text-[#FF6F61] border border-rose-200 hover:bg-rose-100 transition shrink-0" title="Sesli Konuş">
           🎙️
         </button>
-        <span id="mic-status" class="text-xs font-semibold text-slate-400">Konuşmak için mikrofona dokun</span>
-
-        <div class="w-full flex gap-2 pt-1">
-          <input id="user-input" type="text" placeholder="Veya buraya yaz..." class="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:border-teal-500 text-slate-700" />
-          <button id="send-btn" type="button" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold transition">Gönder</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Kalıcı Silik Yapımcı İmzası -->
-    <div class="pt-1 text-center">
-      <p class="text-[10px] font-medium tracking-wider text-slate-400/50 select-none">
-        © 2026 Veloce • Enes Emre Işık
-      </p>
-    </div>
-
-  </div>
-
-  <!-- Üyelik Planları & Hızlı Geçiş Penceresi -->
-  <div id="plans-modal" onclick="handleBackdropClick(event)" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 space-y-3.5 border border-indigo-50 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-slate-800">Veloce Plan Durumu</h2>
-          <p class="text-[11px] text-slate-400">Tam erişim aktif; dilediğin plan görünümünü test edebilirsin</p>
-        </div>
-        <button id="close-plans-btn" type="button" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold text-xs hover:bg-slate-200">✕</button>
-      </div>
-
-      <!-- Yapımcı Tam Erişim -->
-      <div class="p-3.5 rounded-2xl border border-purple-300 bg-gradient-to-r from-indigo-50 via-purple-50 to-rose-50 flex items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-purple-700">Ultra Premium • Yapımcı Tam Erişim</div>
-          <div class="text-[11px] text-slate-600">Sınırsız pratik • Tüm 7 dil • Tüm seviyeler (A1–B2+)</div>
-        </div>
-        <button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold hover:opacity-95 shrink-0">
-          Tam Açık
+        <input id="chatInput" type="text" placeholder="Lingu ile herhangi bir konuda konuş veya yaz..." autocomplete="off"
+          class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#0ABAB5] focus:bg-white">
+        <button type="submit" id="sendBtn" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#0ABAB5] to-[#089692] text-white font-bold text-sm shadow-sm hover:opacity-95 transition shrink-0">
+          Gönder
         </button>
+      </form>
+    </section>
+
+    <!-- 2. KONUŞMA AKADEMİSİ -->
+    <section id="tab-academy" class="tab-panel hidden space-y-4">
+      <div class="glass-card rounded-3xl p-5">
+        <h2 class="text-base font-extrabold text-slate-800">🎭 Gerçek Hayat Konuşma Senaryoları</h2>
+        <p class="text-xs text-slate-500 mt-1">Bir senaryo seçtiğinde Lingu doğrudan o role girer, 3 adımlık hedefi tamamlamana yardımcı olur ve hatalarını düzeltir.</p>
+        <div id="academyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4"></div>
+      </div>
+    </section>
+
+    <!-- 3. KELİME KARTLARI -->
+    <section id="tab-vocab" class="tab-panel hidden space-y-4">
+      <div class="glass-card rounded-3xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-800">🃏 Akıllı Kelime Destesi</h2>
+            <p class="text-xs text-slate-500">Kartın üzerine dokunarak çevir; öğrenme durumuna göre tekrar sıklığını belirle.</p>
+          </div>
+          <span id="vocabCounter" class="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-[#089692] border border-teal-200">1 / 1</span>
+        </div>
+
+        <div id="vocabFlipCard" class="flip-card w-full max-w-md mx-auto h-56 cursor-pointer select-none">
+          <div class="flip-card-inner">
+            <div class="flip-face rounded-3xl bg-gradient-to-br from-[#0ABAB5] to-[#089692] text-white p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <span class="text-[11px] uppercase tracking-wider font-bold bg-white/20 px-2.5 py-0.5 rounded-full mb-3">Hedef İfade</span>
+              <h3 id="cardFrontWord" class="text-2xl font-extrabold">Break the ice</h3>
+              <button type="button" id="cardSpeakBtn" class="mt-4 px-3.5 py-1.5 rounded-xl bg-white text-[#089692] text-xs font-bold shadow-sm hover:bg-teal-50">
+                🔊 Telaffuzu Dinle
+              </button>
+              <span class="text-[11px] text-teal-100 mt-3">Anlamını görmek için karta dokun</span>
+            </div>
+            <div class="flip-face flip-back rounded-3xl bg-white border-2 border-[#0ABAB5] p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <span class="text-[11px] uppercase tracking-wider font-bold text-[#FF6F61] bg-rose-50 px-2.5 py-0.5 rounded-full mb-2">Türkçe Anlamı</span>
+              <h3 id="cardBackMeaning" class="text-xl font-extrabold text-slate-800">Ortamdaki gerginliği yumuşatmak</h3>
+              <p id="cardBackExample" class="text-xs text-slate-500 italic mt-2">"He told a joke to break the ice."</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="max-w-md mx-auto grid grid-cols-3 gap-2 mt-4">
+          <button type="button" data-rate="hard" class="vocab-rate-btn py-2.5 rounded-2xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold hover:bg-rose-100">
+            🔁 Tekrar Et
+          </button>
+          <button type="button" data-rate="good" class="vocab-rate-btn py-2.5 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold hover:bg-amber-100">
+            👍 Orta
+          </button>
+          <button type="button" data-rate="easy" class="vocab-rate-btn py-2.5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold hover:bg-emerald-100">
+            ✅ Öğrendim (+10 XP)
+          </button>
+        </div>
+
+        <form id="addVocabForm" class="max-w-md mx-auto mt-6 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input id="newWordInput" type="text" placeholder="Yeni kelime/kalıp" required class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+          <input id="newMeaningInput" type="text" placeholder="Türkçe anlamı" required class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5">
+          <button type="submit" class="text-xs font-bold bg-slate-800 text-white rounded-xl py-2.5 hover:bg-slate-700">
+            + Desteye Ekle
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 4. TELAFFUZ STÜDYOSU -->
+    <section id="tab-pronunciation" class="tab-panel hidden space-y-4">
+      <div class="glass-card rounded-3xl p-5 max-w-2xl mx-auto w-full">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-extrabold text-slate-800">🎙️ AI Telaffuz Değerlendirme Stüdyosu</h2>
+            <p class="text-xs text-slate-500">Hedef cümleyi dinle, mikrofona basarak oku ve yapay zekâ telaffuz puanını gör.</p>
+          </div>
+          <button type="button" id="nextPromptBtn" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-teal-50 text-[#089692] border border-teal-200 hover:bg-teal-100">
+            Yeni Cümle ↻
+          </button>
+        </div>
+
+        <div class="mt-4 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/50 border border-teal-100 text-center">
+          <span class="text-[11px] font-bold uppercase text-slate-400">Okunacak Hedef Cümle</span>
+          <p id="pronunciationTarget" class="text-lg sm:text-xl font-extrabold text-slate-800 mt-1">Could you recommend a local dish?</p>
+          <p id="pronunciationHint" class="text-xs text-slate-500 mt-1">Bana yöresel bir yemek önerebilir misiniz?</p>
+
+          <div class="flex flex-wrap items-center justify-center gap-2.5 mt-4">
+            <button type="button" id="listenTargetBtn" class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50">
+              🔊 Önce Dinle
+            </button>
+            <button type="button" id="recordPronBtn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6F61] to-[#ff877b] text-white text-xs font-bold shadow-sm hover:opacity-95">
+              🎙️ Mikrofona Oku
+            </button>
+          </div>
+        </div>
+
+        <div id="pronunciationResult" class="hidden mt-4 p-4 rounded-2xl bg-white border border-teal-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-600">Telaffuz Doğruluk Puanı</span>
+            <span id="pronScoreBadge" class="text-sm font-extrabold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">92 / 100</span>
+          </div>
+          <p id="pronSpokenText" class="text-xs text-slate-500"></p>
+          <p id="pronFeedbackText" class="text-xs font-medium text-slate-700"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. DERS & İSTATİSTİKLER -->
+    <section id="tab-stats" class="tab-panel hidden space-y-4">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="glass-card rounded-2xl p-4">
+          <span class="text-xs text-slate-500">Öğrenilen Kelime</span>
+          <p id="statMasteredWords" class="text-2xl font-extrabold text-[#089692] mt-1">0</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4">
+          <span class="text-xs text-slate-500">Ort. Telaffuz</span>
+          <p id="statAvgPron" class="text-2xl font-extrabold text-[#FF6F61] mt-1">-%</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4">
+          <span class="text-xs text-slate-500">Tamamlanan Ders</span>
+          <p id="statLessonsDone" class="text-2xl font-extrabold text-slate-800 mt-1">0</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4">
+          <span class="text-xs text-slate-500">Kayıtlı Hata Analizi</span>
+          <p id="statMistakeCount" class="text-2xl font-extrabold text-amber-600 mt-1">0</p>
+        </div>
       </div>
 
-      <!-- 5 Günlük Deneme Test -->
-      <div class="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/60 flex items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-emerald-800">5 Günlük Ücretsiz Premium Deneme</div>
-          <div class="text-[11px] text-emerald-700/90">5 gün • 7 dil • A1–B1 seviye (test görünümü)</div>
-        </div>
-        <button type="button" onclick="selectPlan('trial')" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shrink-0">
-          Test Et
-        </button>
-      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass-card rounded-3xl p-5 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-800">🧠 Hatalarına Özel Akıllı Ders</h3>
+              <p class="text-[11px] text-slate-500">Sohbetlerde yaptığın hataları analiz ederek sana özel mini ders ve test hazırlar.</p>
+            </div>
+            <button type="button" id="generateLessonBtn" class="px-3.5 py-2 rounded-xl bg-[#0ABAB5] text-white text-xs font-bold hover:opacity-95 shrink-0">
+              ✨ Ders Oluştur
+            </button>
+          </div>
 
-      <!-- Free Test -->
-      <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-slate-700">Free <span class="text-slate-400 font-semibold">• 0 TL</span></div>
-          <div class="text-[11px] text-slate-500">Günlük 10 pratik • 4 temel dil • A1 başlangıç</div>
+          <div id="mistakeListBox" class="space-y-1.5 max-h-36 overflow-y-auto"></div>
+          <div id="customLessonOutput" class="hidden p-4 rounded-2xl bg-teal-50/70 border border-teal-200 space-y-3 text-xs"></div>
         </div>
-        <button type="button" onclick="selectPlan('free')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-300 shrink-0">
-          Test Et
-        </button>
-      </div>
 
-      <!-- Premium Yıllık Test -->
-      <div class="p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50 flex items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-indigo-700">Premium Yıllık <span class="text-indigo-500">• 800 TL / yıl</span></div>
-          <div class="text-[11px] text-slate-600">Günlük 60 pratik • Tüm 7 dil • A1–B1 seviye</div>
-        </div>
-        <button type="button" onclick="selectPlan('premium')" class="px-3 py-1.5 rounded-xl bg-indigo-500 text-white text-xs font-bold hover:bg-indigo-600 shrink-0">
-          Test Et
-        </button>
-      </div>
+        <div class="glass-card rounded-3xl p-5 space-y-4">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-800">📊 7 Günlük Öğrenme Aktivitesi (XP)</h3>
+            <div id="weeklyChart" class="grid grid-cols-7 gap-2 items-end h-28 pt-4 px-2"></div>
+          </div>
 
-      <!-- Ultra Premium Yıllık -->
-      <div class="p-3.5 rounded-2xl border border-indigo-100 bg-white flex items-center justify-between gap-3">
-        <div>
-          <div class="text-xs font-bold text-slate-800">Ultra Premium Yıllık <span class="text-purple-600">• 2500 TL / yıl</span></div>
-          <div class="text-[11px] text-slate-500">Sınırsız pratik • Tüm 7 dil • A1–B2+ tüm seviyeler</div>
+          <div class="pt-3 border-t border-slate-100">
+            <h3 class="text-sm font-extrabold text-slate-800 mb-2">🗂️ Kayıtlı Konuşma Geçmişi</h3>
+            <div id="savedSessionsList" class="space-y-2 max-h-40 overflow-y-auto"></div>
+          </div>
         </div>
-        <button type="button" onclick="selectPlan('ultra')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 shrink-0">
-          2500 TL Modu
-        </button>
       </div>
-    </div>
-  </div>
+    </section>
+
+  </main>
+
+  <div id="toastBox" class="fixed bottom-4 right-4 z-50 hidden px-4 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-semibold shadow-xl"></div>
 
   <script>
-    let splashClosed = false;
-    let splashFallbackTimer = null;
+    // =========================================================================
+    // 1. TEMEL YAPILANDIRMA, DİL VERİLERİ & KULLANICI DURUMU
+    // =========================================================================
+    const apiKey = "";
+    const GEMINI_MODEL = "gemini-3-flash-preview";
+    const STORAGE_KEY = "veloce_ai_v3_state";
 
-    function dismissSplash() {
-      if (splashClosed) return;
-      splashClosed = true;
-      if (splashFallbackTimer) {
-        clearTimeout(splashFallbackTimer);
-        splashFallbackTimer = null;
-      }
-      const splash = document.getElementById("splash-screen");
-      if (!splash) return;
-      splash.classList.add("hidden-splash");
-      splash.style.opacity = "0";
-      splash.style.pointerEvents = "none";
-      setTimeout(() => {
-        splash.style.display = "none";
-        if (splash.parentNode) {
-          splash.remove();
-        }
-      }, 300);
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(dismissSplash, 1300);
-      });
-    } else {
-      setTimeout(dismissSplash, 1300);
-    }
-
-    window.addEventListener("load", () => {
-      setTimeout(dismissSplash, 250);
-    });
-
-    splashFallbackTimer = setTimeout(dismissSplash, 1800);
-
-    const PLAN_CONFIG = {
-      ultra: {
-        label: "Ultra Premium • Yapımcı Modu",
-        dailyLimit: Infinity,
-        badgeClass: "bg-purple-100 text-purple-700",
-        allowAllLangs: true,
-        allowedLevels: ["a1", "b1", "b2"]
+    const LANGUAGES = {
+      "en-US": {
+        name: "İngilizce",
+        greeting: "Hello! I'm Lingu, your AI language coach. What would you like to practice today?",
+        translation: "Merhaba! Ben Lingu, yapay zekâ dil koçun. Bugün ne pratik yapmak istersin?",
+        prompts: ["I'd like to order a coffee.", "Can we practice a job interview?", "Tell me an interesting idiom."],
+        pronPrompts: [
+          { text: "Could you recommend a local dish?", tr: "Bana yöresel bir yemek önerebilir misiniz?" },
+          { text: "I am looking forward to our meeting tomorrow.", tr: "Yarınki toplantımızı dört gözle bekliyorum." },
+          { text: "Excuse me, how do I get to the train station?", tr: "Affedersiniz, tren istasyonuna nasıl gidebilirim?" }
+        ]
       },
-      trial: {
-        label: "5 Günlük Deneme (5g)",
-        dailyLimit: 60,
-        badgeClass: "bg-emerald-100 text-emerald-800",
-        allowAllLangs: true,
-        allowedLevels: ["a1", "b1"]
+      "fr-FR": {
+        name: "Fransızca",
+        greeting: "Bonjour ! Je suis Lingu, ton professeur de langue. De quoi veux-tu parler aujourd'hui ?",
+        translation: "Merhaba! Ben Lingu, dil öğretmenin. Bugün ne hakkında konuşmak istersin?",
+        prompts: ["Je voudrais un café, s'il vous plaît.", "Comment ça va aujourd'hui ?", "Parlons de voyages."],
+        pronPrompts: [
+          { text: "Je voudrais réserver une table pour deux personnes.", tr: "İki kişilik bir masa ayırtmak istiyorum." },
+          { text: "Où se trouve la station de métro la plus proche ?", tr: "En yakın metro istasyonu nerede?" }
+        ]
       },
-      free: {
-        label: "Free Plan",
-        dailyLimit: 10,
-        badgeClass: "bg-slate-200/80 text-slate-700",
-        allowAllLangs: false,
-        allowedLevels: ["a1"]
+      "es-ES": {
+        name: "İspanyolca",
+        greeting: "¡Hola! Soy Lingu, tu profesor de idiomas. ¿Qué te gustaría practicar hoy?",
+        translation: "Merhaba! Ben Lingu, dil öğretmenin. Bugün ne pratik yapmak istersin?",
+        prompts: ["Quisiera pedir un café con leche.", "¿Dónde está la estación?", "Hablemos de música."],
+        pronPrompts: [
+          { text: "¿Podría traerme la cuenta, por favor?", tr: "Hesabı getirebilir misiniz lütfen?" },
+          { text: "Me encantaría conocer mejor esta ciudad.", tr: "Bu şehri daha yakından tanımayı çok isterim." }
+        ]
       },
-      premium: {
-        label: "Premium Yıllık",
-        dailyLimit: 60,
-        badgeClass: "bg-indigo-100 text-indigo-700",
-        allowAllLangs: true,
-        allowedLevels: ["a1", "b1"]
+      "de-DE": {
+        name: "Almanca",
+        greeting: "Hallo! Ich bin Lingu, dein KI-Sprachlehrer. Worüber möchtest du heute sprechen?",
+        translation: "Merhaba! Ben Lingu, yapay zekâ dil öğretmenin. Bugün ne hakkında konuşmak istersin?",
+        prompts: ["Ich möchte einen Kaffee bestellen.", "Wie komme ich zum Bahnhof?", "Erzähl mir etwas Neues."],
+        pronPrompts: [
+          { text: "Könnten Sie mir bitte die Speisekarte bringen?", tr: "Bana menüyü getirebilir misiniz lütfen?" },
+          { text: "Ich freue mich sehr auf unsere Zusammenarbeit.", tr: "İş birliğimizi dört gözle bekliyorum." }
+        ]
+      },
+      "ru-RU": {
+        name: "Rusça",
+        greeting: "Привет! Я Лингу, твой ИИ-учитель. О чём ты хочешь поговорить сегодня?",
+        translation: "Merhaba! Ben Lingu, yapay zekâ öğretmenin. Bugün ne hakkında konuşmak istersin?",
+        prompts: ["Я хочу заказать кофе.", "Как пройти к вокзалу?", "Давай поговорим о путешествиях."],
+        pronPrompts: [
+          { text: "Подскажите, пожалуйста, как пройти в центр города?", tr: "Şehir merkezine nasıl gidilir, söyler misiniz lütfen?" }
+        ]
+      },
+      "pt-PT": {
+        name: "Portekizce",
+        greeting: "Olá! Eu sou o Lingu, o teu professor de línguas. O que gostarias de praticar hoje?",
+        translation: "Merhaba! Ben Lingu, dil öğretmenin. Bugün ne pratik yapmak istersin?",
+        prompts: ["Queria um café, por favor.", "Onde fica o aeroporto?", "Vamos conversar sobre viagens."],
+        pronPrompts: [
+          { text: "Pode recomendar-me um prato típico da região?", tr: "Bana bölgeye özgü bir yemek önerebilir misiniz?" }
+        ]
+      },
+      "tr-TR": {
+        name: "Türkçe",
+        greeting: "Merhaba! Ben Lingu, yapay zekâ dil koçun. Bugün hangi konuda pratik yapalım?",
+        translation: "Merhaba! Ben Lingu, yapay zekâ dil koçun. Bugün hangi konuda pratik yapalım?",
+        prompts: ["Bir kahve sipariş etmek istiyorum.", "İş görüşmesi provası yapalım.", "Günlük sohbet edelim."],
+        pronPrompts: [
+          { text: "Yarınki toplantı için tüm hazırlıkları tamamladık.", tr: "Yarınki toplantı için tüm hazırlıkları tamamladık." }
+        ]
       }
     };
 
-    let currentPlan = "ultra";
-    let usedToday = 0;
-    let autoSpeak = true;
-    let step = 0;
-    let mascotSafetyTimer = null;
+    const SCENARIOS = [
+      { id: "restaurant", icon: "🍽️", title: "Restoranda Sipariş", desc: "Menü sor, özel isteklerini belirt ve hesabı iste.", role: "Sen şık bir restoranda garson rolündesin." },
+      { id: "interview", icon: "💼", title: "İş Görüşmesi", desc: "Kendini tanıt, güçlü yönlerini anlat ve soruları yanıtla.", role: "Sen bir şirketin insan kaynakları yöneticisisin." },
+      { id: "airport", icon: "✈️", title: "Havaalanı & Seyahat", desc: "Check-in yap, bagaj teslim et ve yön tarifi al.", role: "Sen havaalanı danışma görevlisisin." },
+      { id: "cafe", icon: "☕", title: "Kafe & Alışveriş", desc: "İçecek ve tatlı seç, ödeme yöntemini sor.", role: "Sen samimi bir barista rolündesin." },
+      { id: "daily", icon: "🗣️", title: "Günlük Sohbet", desc: "Hobiler, filmler ve hafta sonu planları üzerine akıcı konuş.", role: "Sen kullanıcının yakın bir arkadaşısın." }
+    ];
 
-    const chatBox = document.getElementById("coach-chat");
-    const micBtn = document.getElementById("mic-btn");
-    const micStatus = document.getElementById("mic-status");
-    const userInput = document.getElementById("user-input");
-    const sendBtn = document.getElementById("send-btn");
-    const targetLangSelect = document.getElementById("target-lang");
-    const levelSelect = document.getElementById("level-select");
-    const activeLevelTag = document.getElementById("active-level-tag");
-    const voiceRate = document.getElementById("voice-rate");
-    const voicePitch = document.getElementById("voice-pitch");
-    const rateVal = document.getElementById("rate-val");
-    const pitchVal = document.getElementById("pitch-val");
-    const voiceSelect = document.getElementById("voice-select");
-    const toggleAutoSpeak = document.getElementById("toggle-auto-speak");
-    const currentPlanBadge = document.getElementById("current-plan-badge");
-    const quotaText = document.getElementById("quota-text");
-    const plansModal = document.getElementById("plans-modal");
-    const openPlansBtn = document.getElementById("open-plans-btn");
-    const closePlansBtn = document.getElementById("close-plans-btn");
-    const coachMascotWrap = document.getElementById("coach-mascot-wrap");
-    const mascotStatusLabel = document.getElementById("mascot-status-label");
+    const DEFAULT_DECK = [
+      { term: "Break the ice", meaning: "Ortamdaki gerginliği yumuşatmak", example: "He told a joke to break the ice.", mastered: false },
+      { term: "Could you clarify?", meaning: "Biraz daha netleştirebilir misiniz?", example: "Could you clarify what you meant?", mastered: false },
+      { term: "In my opinion", meaning: "Bence / Benim fikrime göre", example: "In my opinion, consistency is key.", mastered: false }
+    ];
 
-    function clearMascotTimer() {
-      if (mascotSafetyTimer) {
-        clearTimeout(mascotSafetyTimer);
-        mascotSafetyTimer = null;
+    function getTodayStr() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function loadUserState() {
+      const today = getTodayStr();
+      const base = {
+        xp: 0,
+        streak: 1,
+        lastActiveDate: today,
+        dailyChatCount: 0,
+        dailyVocabCount: 0,
+        dailyPronCount: 0,
+        dailyBonusClaimed: false,
+        lessonsCompleted: 0,
+        pronScores: [],
+        mistakes: [],
+        sessions: [],
+        deck: [...DEFAULT_DECK],
+        weeklyXP: { [today]: 0 }
+      };
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return base;
+        const parsed = JSON.parse(raw);
+        const merged = { ...base, ...parsed };
+        if (merged.lastActiveDate !== today) {
+          merged.dailyChatCount = 0;
+          merged.dailyVocabCount = 0;
+          merged.dailyPronCount = 0;
+          merged.dailyBonusClaimed = false;
+          merged.streak = (merged.streak || 0) + 1;
+          merged.lastActiveDate = today;
+        }
+        return merged;
+      } catch (e) {
+        return base;
       }
     }
 
-    function setMascotState(state = "idle", maxDurationMs = 12000) {
-      clearMascotTimer();
-      if (!coachMascotWrap) return;
+    // =========================================================================
+    // 2. KESİNTİSİZ SES MOTORU (GERÇEK KONUŞMA AKIŞI + GEMINI TTS + TARAYICI)
+    // =========================================================================
+    let availableVoices = [];
+    let currentAudioObj = null;
+    let activeTtsAbort = null;
+    let sharedAudioCtx = null;
+    let speechSessionId = 0;
+    const ttsAudioCache = new Map();
 
-      coachMascotWrap.classList.remove("mascot-speaking", "mascot-listening", "mascot-thinking");
-
-      if (state === "speaking") {
-        coachMascotWrap.classList.add("mascot-speaking");
-        if (mascotStatusLabel) mascotStatusLabel.textContent = "Konuşuyor";
-      } else if (state === "listening") {
-        coachMascotWrap.classList.add("mascot-listening");
-        if (mascotStatusLabel) mascotStatusLabel.textContent = "Dinliyor";
-      } else if (state === "thinking") {
-        coachMascotWrap.classList.add("mascot-thinking");
-        if (mascotStatusLabel) mascotStatusLabel.textContent = "Düşünüyor";
-      } else {
-        if (mascotStatusLabel) mascotStatusLabel.textContent = "Hazır";
-        return;
+    function stopAllSpeech() {
+      speechSessionId += 1;
+      if (activeTtsAbort) {
+        activeTtsAbort.abort();
+        activeTtsAbort = null;
       }
-
-      // Tarayıcı onend tetiklemezse maskotun takılı kalmasını önleyen güvenlik süresi
-      mascotSafetyTimer = setTimeout(() => {
-        resetMascotState();
-      }, maxDurationMs);
-    }
-
-    function resetMascotState() {
-      clearMascotTimer();
-      setMascotState("idle");
-    }
-
-    function updateLevelTag() {
-      activeLevelTag.textContent = `${levelSelect.value.toUpperCase()} • Sabırlı & Samimi Mod`;
-    }
-
-    function updatePlanUI() {
-      const cfg = PLAN_CONFIG[currentPlan];
-      currentPlanBadge.textContent = cfg.label;
-      currentPlanBadge.className = `px-2.5 py-0.5 rounded-full font-bold text-[11px] ${cfg.badgeClass}`;
-
-      if (Number.isFinite(cfg.dailyLimit)) {
-        const remaining = Math.max(0, cfg.dailyLimit - usedToday);
-        quotaText.textContent = `Kalan hak: ${remaining} / ${cfg.dailyLimit}`;
-      } else {
-        quotaText.textContent = `Pratik: Sınırsız (${usedToday} yapıldı)`;
+      if (currentAudioObj) {
+        try {
+          currentAudioObj.onplay = null;
+          currentAudioObj.onended = null;
+          currentAudioObj.onerror = null;
+          currentAudioObj.pause();
+          currentAudioObj.src = "";
+        } catch (e) {}
+        currentAudioObj = null;
       }
-
-      if (!cfg.allowedLevels.includes(levelSelect.value)) {
-        levelSelect.value = cfg.allowedLevels[cfg.allowedLevels.length - 1];
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
       }
-      updateLevelTag();
+      setLinguState("idle");
     }
 
-    function openModal() {
-      plansModal.classList.remove("hidden");
-      plansModal.classList.add("flex");
+    function unlockAudioEngine() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          if (!sharedAudioCtx) sharedAudioCtx = new AudioCtx();
+          if (sharedAudioCtx.state === "suspended") sharedAudioCtx.resume();
+        }
+      } catch (e) {}
     }
 
-    function closeModal() {
-      plansModal.classList.add("hidden");
-      plansModal.classList.remove("flex");
+    function pcmBase64ToWavUrl(base64Pcm, sampleRate = 24000) {
+      const binary = atob(base64Pcm);
+      const pcmLen = binary.length;
+      const buffer = new ArrayBuffer(44 + pcmLen);
+      const view = new DataView(buffer);
+      const writeStr = (offset, str) => {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      };
+      writeStr(0, "RIFF");
+      view.setUint32(4, 36 + pcmLen, true);
+      writeStr(8, "WAVE");
+      writeStr(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, "data");
+      view.setUint32(40, pcmLen, true);
+      const bytes = new Uint8Array(buffer, 44);
+      for (let i = 0; i < pcmLen; i++) bytes[i] = binary.charCodeAt(i);
+      return URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
     }
 
-    function handleBackdropClick(e) {
-      if (e.target === plansModal) closeModal();
+    function playCachedAudioUrl(audioUrl, sessionId, onFail) {
+      if (sessionId !== speechSessionId) return;
+      const audio = new Audio(audioUrl);
+      audio.volume = 1.0;
+      currentAudioObj = audio;
+      audio.onplay = () => {
+        if (sessionId === speechSessionId) setLinguState("speaking");
+      };
+      audio.onended = () => {
+        if (sessionId === speechSessionId) setLinguState("idle");
+      };
+      audio.onerror = () => {
+        if (sessionId !== speechSessionId) return;
+        if (onFail) onFail();
+        else setLinguState("idle");
+      };
+      audio.play().catch(() => {
+        if (sessionId !== speechSessionId) return;
+        if (onFail) onFail();
+        else setLinguState("idle");
+      });
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !plansModal.classList.contains("hidden")) {
-        closeModal();
-      }
-    });
-
-    function selectPlan(planKey) {
-      currentPlan = planKey;
-      closeModal();
-      updatePlanUI();
-      appendMessage(`Mod "${PLAN_CONFIG[planKey].label}" olarak ayarlandı.`, "coach", "tr-TR");
-    }
-
-    openPlansBtn.addEventListener("click", openModal);
-    closePlansBtn.addEventListener("click", closeModal);
-
-    function canConsumeQuota() {
-      const limit = PLAN_CONFIG[currentPlan].dailyLimit;
-      if (!Number.isFinite(limit)) return true;
-      if (usedToday >= limit) {
-        appendMessage("Seçili test modunun günlük kotası doldu; pencereden Ultra Premium moduna dönebilirsin.", "coach", "tr-TR");
-        openModal();
+    function speakWithBrowserInstant(cleanText, targetLang, browserIdx = null, voiceProfile = "Puck", sessionId = speechSessionId) {
+      if (sessionId !== speechSessionId) return false;
+      if (!("speechSynthesis" in window)) {
+        setLinguState("idle");
         return false;
       }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(cleanText);
+      utter.lang = targetLang;
+      utter.rate = voiceProfile === "Fenrir" ? 1.02 : voiceProfile === "Charon" ? 0.92 : 0.96;
+      utter.pitch = voiceProfile === "Kore" ? 1.12 : voiceProfile === "Charon" ? 0.72 : voiceProfile === "Fenrir" ? 0.88 : 0.80;
+
+      const voices = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
+      if (browserIdx !== null && voices[browserIdx]) {
+        utter.voice = voices[browserIdx];
+      } else {
+        const shortLang = targetLang.split("-")[0].toLowerCase();
+        const langVoices = voices.filter(v => v.lang.toLowerCase().startsWith(shortLang));
+        const maleHints = /(male|daniel|david|guy|mark|thomas|henri|jorge|hans|alex|aaron|arthur|matthew|joey|brian|russell|christopher|eric)/i;
+        const femaleHints = /(female|samantha|victoria|karen|zira|amelie|monica|helena|anna|katya|joanna|salli|kendra|amy|emma)/i;
+        let chosen = null;
+        if (voiceProfile === "Kore") {
+          chosen = langVoices.find(v => femaleHints.test(v.name)) || langVoices[0];
+        } else {
+          chosen = langVoices.find(v => maleHints.test(v.name)) || langVoices.find(v => !femaleHints.test(v.name)) || langVoices[0];
+        }
+        if (chosen) utter.voice = chosen;
+      }
+
+      utter.onstart = () => {
+        if (sessionId === speechSessionId) setLinguState("speaking");
+      };
+      utter.onend = () => {
+        if (sessionId === speechSessionId) setLinguState("idle");
+      };
+      utter.onerror = () => {
+        if (sessionId === speechSessionId) setLinguState("idle");
+      };
+      window.speechSynthesis.speak(utter);
       return true;
     }
 
-    voiceRate.addEventListener("input", () => { rateVal.textContent = voiceRate.value + "x"; });
-    voicePitch.addEventListener("input", () => { pitchVal.textContent = voicePitch.value; });
-    toggleAutoSpeak.addEventListener("click", () => {
-      autoSpeak = !autoSpeak;
-      toggleAutoSpeak.textContent = autoSpeak ? "Sesli Yanıt: Açık" : "Sesli Yanıt: Kapalı";
-      toggleAutoSpeak.className = autoSpeak
-        ? "text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 transition"
-        : "text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 transition";
-      if (!autoSpeak && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-        resetMascotState();
-      }
-    });
-
-    function loadVoices() {
-      if (!("speechSynthesis" in window)) return;
-      const voices = window.speechSynthesis.getVoices();
-      const langPrefix = targetLangSelect.value.split("-")[0];
-      voiceSelect.innerHTML = '<option value="">Varsayılan Doğal Ses</option>';
-      voices.forEach((v, idx) => {
-        if (v.lang.startsWith(langPrefix) || v.lang.startsWith("tr")) {
-          const opt = document.createElement("option");
-          opt.value = idx;
-          opt.textContent = `${v.name} (${v.lang})`;
-          voiceSelect.appendChild(opt);
-        }
-      });
-    }
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    let previousLang = targetLangSelect.value;
-    targetLangSelect.addEventListener("change", () => {
-      const selectedOpt = targetLangSelect.options[targetLangSelect.selectedIndex];
-      const freeLangs = ["en-US", "fr-FR", "es-ES", "tr-TR"];
-      if (!PLAN_CONFIG[currentPlan].allowAllLangs && !freeLangs.includes(targetLangSelect.value)) {
-        targetLangSelect.value = previousLang;
-        appendMessage("Bu dil mevcut test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
-        openModal();
-        return;
-      }
-      previousLang = targetLangSelect.value;
-      loadVoices();
-      step = 0;
-      appendMessage(`Harika, ${selectedOpt.text} (${levelSelect.value.toUpperCase()}) çalışıyoruz! Hazırsan başlayalım.`, "coach", "tr-TR");
-    });
-
-    let previousLevel = levelSelect.value;
-    levelSelect.addEventListener("change", () => {
-      const chosenLevel = levelSelect.value;
-      if (!PLAN_CONFIG[currentPlan].allowedLevels.includes(chosenLevel)) {
-        levelSelect.value = previousLevel;
-        appendMessage("Bu eğitim düzeyi seçili test modunda kapalı; Ultra Premium'a geçerek açabilirsin.", "coach", "tr-TR");
-        openModal();
-        return;
-      }
-      previousLevel = chosenLevel;
-      step = 0;
-      updateLevelTag();
-      appendMessage(`Eğitim düzeyini ${chosenLevel.toUpperCase()} olarak ayarladık. Hadi başlayalım!`, "coach", "tr-TR");
-    });
-
-    function speakText(text, langOverride = null) {
-      if (!("speechSynthesis" in window)) {
-        resetMascotState();
-        return;
-      }
-      window.speechSynthesis.cancel();
-      resetMascotState();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      const targetCode = langOverride || targetLangSelect.value;
-      utterance.lang = targetCode;
-      utterance.rate = parseFloat(voiceRate.value);
-      utterance.pitch = parseFloat(voicePitch.value);
-
-      const voices = window.speechSynthesis.getVoices();
-      if (voiceSelect.value !== "" && voices[voiceSelect.value]) {
-        const chosenVoice = voices[voiceSelect.value];
-        if (chosenVoice.lang.split("-")[0] === targetCode.split("-")[0]) {
-          utterance.voice = chosenVoice;
-        }
-      }
-
-      const estimatedMs = Math.max(2500, Math.min(20000, text.length * 75));
-      utterance.onstart = () => setMascotState("speaking", estimatedMs);
-      utterance.onend = () => resetMascotState();
-      utterance.onerror = () => resetMascotState();
-
-      setMascotState("speaking", estimatedMs);
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function appendMessage(text, sender = "coach", speakLang = null) {
-      const bubble = document.createElement("div");
-      if (sender === "coach") {
-        bubble.className = "bg-white p-3.5 rounded-2xl rounded-tl-sm shadow-sm text-slate-700 flex items-start justify-between gap-2";
-        const span = document.createElement("span");
-        span.textContent = text;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = "🔊";
-        btn.className = "text-teal-600 hover:text-teal-800 text-base shrink-0";
-        btn.onclick = () => speakText(text, speakLang);
-        bubble.appendChild(span);
-        bubble.appendChild(btn);
-        if (autoSpeak) {
-          speakText(text, speakLang);
+    function splitTextChunks(text, maxLen = 170) {
+      const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
+      const chunks = [];
+      let current = "";
+      for (const s of sentences) {
+        const trimmed = s.trim();
+        if (!trimmed) continue;
+        if ((current + " " + trimmed).trim().length <= maxLen) {
+          current = (current + " " + trimmed).trim();
         } else {
-          resetMascotState();
+          if (current) chunks.push(current);
+          current = trimmed.slice(0, maxLen);
         }
-      } else {
-        bubble.className = "bg-teal-600 p-3 rounded-2xl rounded-tr-sm text-white ml-auto max-w-[85%] shadow-sm";
-        bubble.textContent = text;
       }
-      chatBox.appendChild(bubble);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      if (current) chunks.push(current);
+      return chunks.length ? chunks : [text.slice(0, maxLen)];
     }
 
-    function processCoachResponse(userSpeech) {
-      usedToday += 1;
-      updatePlanUI();
+    function playStreamedSpeech(cleanText, targetLang, voiceName, sessionId, onFail) {
+      if (sessionId !== speechSessionId) return;
+      const shortLang = targetLang.split("-")[0].toLowerCase();
+      const chunks = splitTextChunks(cleanText, 170);
+      const isFemale = voiceName === "Kore";
 
-      const lang = targetLangSelect.value;
-      const level = levelSelect.value;
-      const clean = userSpeech.toLowerCase().trim();
-
-      if (level === "b2") {
-        appendMessage(`(${level.toUpperCase()}) Harika ifade! "${userSpeech}" cümlesini daha doğal bir günlük kalıpla nasıl kurardın?`, "coach", "tr-TR");
-        return;
-      }
-
-      if (level === "b1") {
-        if (clean.includes("how are you") || clean.includes("ça va") || clean.includes("good")) {
-          appendMessage(`(${level.toUpperCase()}) Çok akıcı! Bugün vaktin olursa ne yapmayı planlıyorsun?`, "coach", "tr-TR");
-        } else {
-          appendMessage(`(${level.toUpperCase()}) Güzel deneme! "${userSpeech}" dedin. Şimdi bunu tek bir kısa cümleyle açıklar mısın?`, "coach", "tr-TR");
-        }
-        return;
-      }
-
-      if (lang === "en-US") {
-        if (step === 0) {
-          if (clean.includes("hello") || clean.includes("hi")) {
-            step = 1;
-            appendMessage("Süper söyledin! Şimdi 'Nasılsın?' demeyi dener misin? (How are you?)", "coach", "tr-TR");
-          } else {
-            appendMessage('Çok yaklaştın! Bunu "Hello" diye söylüyoruz. Hadi bir kez daha söyle: Hello.', "coach", "tr-TR");
-          }
-        } else if (step === 1) {
-          if (clean.includes("how are you")) {
-            step = 2;
-            appendMessage("Harikasın! Çok doğal çıktı. Peki, 'İyiyim, teşekkürler' nasıl dersin?", "coach", "tr-TR");
-          } else {
-            appendMessage('Sorun değil, çok normal. Doğrusu: "How are you?". Yavaşça tekrar eder misin?', "coach", "tr-TR");
-          }
-        } else {
-          appendMessage("Çok iyi gidiyorsun! Şimdi söylemek istediğin başka bir cümle var mı?", "coach", "tr-TR");
-        }
-      } else if (lang === "fr-FR") {
-        if (step === 0) {
-          if (clean.includes("bonjour") || clean.includes("salut")) {
-            step = 1;
-            appendMessage("Harika telaffuz! Şimdi 'Nasılsın?' demeyi deneyelim: 'Ça va?' Söyler misin?", "coach", "tr-TR");
-          } else {
-            appendMessage("Hiç sorun değil! Fransızcada 'Merhaba' için \"Bonjour\" diyoruz. Hadi tekrar et: Bonjour.", "coach", "tr-TR");
-          }
-        } else {
-          appendMessage("Çok güzel ilerliyorsun! Bir sonraki kelimemize geçelim mi?", "coach", "tr-TR");
-        }
-      } else {
-        appendMessage(`Harika deneme! "${userSpeech}" dedin. Bir cümle daha kuralım mı?`, "coach", "tr-TR");
-      }
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-
-      micBtn.addEventListener("click", () => {
-        if (!canConsumeQuota()) return;
-        recognition.lang = targetLangSelect.value;
-        try {
-          recognition.start();
-          micBtn.classList.add("listening");
-          micStatus.textContent = "Seni dinliyorum... Konuşabilirsin";
-          micStatus.classList.add("text-rose-500");
-          setMascotState("listening", 10000);
-        } catch (e) {
-          micStatus.textContent = "Mikrofon başlatılamadı, tekrar dokunup dener misin?";
-          resetMascotState();
-        }
-      });
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        appendMessage(transcript, "user");
-        setMascotState("thinking", 3000);
-        setTimeout(() => processCoachResponse(transcript), 350);
+      const maleSpeakerMap = {
+        en: "Brian",
+        fr: "Mathieu",
+        es: "Enrique",
+        de: "Hans",
+        ru: "Maxim",
+        pt: "Cristiano",
+        tr: "Filiz"
       };
-
-      recognition.onerror = (event) => {
-        resetMascotState();
-        if (event && event.error === "not-allowed") {
-          micStatus.textContent = "Mikrofon izni kapalı; tarayıcı/uygulama ayarlarından izin ver.";
-        } else {
-          micStatus.textContent = "Sesini tam alamadım, tekrar dokunup dener misin?";
-        }
+      const femaleSpeakerMap = {
+        en: "Amy",
+        fr: "Celine",
+        es: "Conchita",
+        de: "Marlene",
+        ru: "Tatyana",
+        pt: "Ines",
+        tr: "Filiz"
       };
+      const speaker = isFemale
+        ? (femaleSpeakerMap[shortLang] || "Amy")
+        : (maleSpeakerMap[shortLang] || "Brian");
 
-      recognition.onend = () => {
-        micBtn.classList.remove("listening");
-        micStatus.classList.remove("text-rose-500");
-        micStatus.textContent = "Konuşmak için mikrofona dokun";
-        if (!("speechSynthesis" in window) || !window.speechSynthesis.speaking) {
-          resetMascotState();
+      const malePitchFactor = voiceName === "Charon" ? 0.78 : voiceName === "Fenrir" ? 0.88 : 0.83;
+      let idx = 0;
+
+      function playNextChunk() {
+        if (sessionId !== speechSessionId) return;
+        if (idx >= chunks.length) {
+          setLinguState("idle");
+          return;
         }
-      };
-    } else {
-      micStatus.textContent = "Tarayıcın ses tanımayı desteklemiyor, alttan yazabilirsin.";
+        const chunk = encodeURIComponent(chunks[idx]);
+        const urls = [
+          `https://api.streamelements.com/kappa/v2/speech?voice=${speaker}&text=${chunk}`,
+          `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${shortLang}&q=${chunk}`
+        ];
+        let urlAttempt = 0;
+
+        function tryUrl() {
+          if (sessionId !== speechSessionId) return;
+          if (urlAttempt >= urls.length) {
+            if (onFail) onFail();
+            else setLinguState("idle");
+            return;
+          }
+          const audio = new Audio(urls[urlAttempt]);
+          audio.volume = 1.0;
+          if (!isFemale && (urlAttempt === 1 || shortLang === "tr")) {
+            audio.playbackRate = malePitchFactor;
+            if ("preservesPitch" in audio) audio.preservesPitch = false;
+            if ("webkitPreservesPitch" in audio) audio.webkitPreservesPitch = false;
+          }
+          currentAudioObj = audio;
+
+          audio.onplay = () => {
+            if (sessionId === speechSessionId) setLinguState("speaking");
+          };
+          audio.onended = () => {
+            if (sessionId !== speechSessionId) return;
+            idx += 1;
+            playNextChunk();
+          };
+          audio.onerror = () => {
+            if (sessionId !== speechSessionId) return;
+            urlAttempt += 1;
+            tryUrl();
+          };
+          audio.play().catch(() => {
+            if (sessionId !== speechSessionId) return;
+            urlAttempt += 1;
+            tryUrl();
+          });
+        }
+
+        tryUrl();
+      }
+
+      playNextChunk();
     }
 
-    function handleTextSend() {
-      const text = userInput.value.trim();
+    async function prefetchGeminiAudio(cleanText, voiceName = "Puck", externalSignal = null) {
+      const cacheKey = `${voiceName}:${cleanText}`;
+      if (ttsAudioCache.has(cacheKey)) return ttsAudioCache.get(cacheKey);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3200);
+        if (externalSignal) {
+          externalSignal.addEventListener("abort", () => controller.abort(), { once: true });
+        }
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: cleanText }] }],
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName } }
+              }
+            }
+          })
+        });
+        clearTimeout(timeoutId);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const part = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+        if (!part?.data) return null;
+        const audioUrl = pcmBase64ToWavUrl(part.data, 24000);
+        ttsAudioCache.set(cacheKey, audioUrl);
+        return audioUrl;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function speakText(text, langCode) {
       if (!text) return;
-      if (!canConsumeQuota()) return;
-      appendMessage(text, "user");
-      userInput.value = "";
-      setMascotState("thinking", 3000);
-      setTimeout(() => processCoachResponse(text), 350);
+      unlockAudioEngine();
+      stopAllSpeech();
+      const mySession = speechSessionId;
+
+      const cleanText = text.replace(/[*_#`]/g, "").trim();
+      const targetLang = langCode || document.getElementById("languageSelect").value;
+      const selectedVal = document.getElementById("voiceSelect").value || "gemini:Puck";
+
+      if (selectedVal.startsWith("browser:")) {
+        speakWithBrowserInstant(cleanText, targetLang, Number(selectedVal.split(":")[1]), "Puck", mySession);
+        return;
+      }
+
+      const voiceName = selectedVal.split(":")[1] || "Puck";
+      const cacheKey = `${voiceName}:${cleanText}`;
+
+      if (ttsAudioCache.has(cacheKey)) {
+        playCachedAudioUrl(ttsAudioCache.get(cacheKey), mySession, () =>
+          playStreamedSpeech(cleanText, targetLang, voiceName, mySession, () =>
+            speakWithBrowserInstant(cleanText, targetLang, null, voiceName, mySession)
+          )
+        );
+        return;
+      }
+
+      setLinguState("thinking");
+      activeTtsAbort = new AbortController();
+      const fetchedUrl = await prefetchGeminiAudio(cleanText, voiceName, activeTtsAbort.signal);
+      if (mySession !== speechSessionId) return;
+
+      if (fetchedUrl) {
+        playCachedAudioUrl(fetchedUrl, mySession, () =>
+          playStreamedSpeech(cleanText, targetLang, voiceName, mySession, () =>
+            speakWithBrowserInstant(cleanText, targetLang, null, voiceName, mySession)
+          )
+        );
+        return;
+      }
+
+      playStreamedSpeech(cleanText, targetLang, voiceName, mySession, () =>
+        speakWithBrowserInstant(cleanText, targetLang, null, voiceName, mySession)
+      );
     }
 
-    sendBtn.addEventListener("click", handleTextSend);
-    userInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleTextSend();
-    });
+    function populateVoices() {
+      if (!("speechSynthesis" in window)) return;
+      availableVoices = window.speechSynthesis.getVoices();
+      const select = document.getElementById("voiceSelect");
+      const currentVal = select.value || "gemini:Puck";
+      const langPrefix = document.getElementById("languageSelect").value.split("-")[0];
+      const matching = availableVoices.filter(v => v.lang.toLowerCase().startsWith(langPrefix));
+      const list = matching.length ? matching : availableVoices;
 
-    updatePlanUI();
-    resetMascotState();
-    setTimeout(loadVoices, 300);
+      select.innerHTML = `
+        <option value="gemini:Puck">🎙️ Lingu AI Erkek (Puck)</option>
+        <option value="gemini:Charon">🎙️ Lingu AI Bariton (Charon)</option>
+        <option value="gemini:Fenrir">🎙️ Lingu AI Enerjik (Fenrir)</option>
+        <option value="gemini:Kore">🎙️ Lingu AI Kadın (Kore)</option>
+      ` + list.slice(0, 6).map((v) => {
+        const realIdx = availableVoices.indexOf(v);
+        return `<option value="browser:${realIdx}">🔊 Cihaz Sesi: ${v.name}</option>`;
+      }).join("");
+
+      if ([...select.options].some(o => o.value === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    // =========================================================================
+    // 3. KULLANICI DURUMU, XP VE GÜNLÜK HEDEFLER
+    // =========================================================================
+    let userState = loadUserState();
+    let activeScenario = null;
+    let chatHistory = [];
+    let currentCardIndex = 0;
+    let currentPronIndex = 0;
+
+    function saveUserState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(userState));
+      } catch (e) {}
+      renderTopMetrics();
+      renderDailyGoals();
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toastBox");
+      box.textContent = msg;
+      box.classList.remove("hidden");
+      clearTimeout(box._timer);
+      box._timer = setTimeout(() => box.classList.add("hidden"), 2800);
+    }
+
+    function addXP(amount) {
+      const today = getTodayStr();
+      userState.xp += amount;
+      userState.weeklyXP[today] = (userState.weeklyXP[today] || 0) + amount;
+      checkDailyGoalBonus();
+      saveUserState();
+    }
+
+    function checkDailyGoalBonus() {
+      const allDone =
+        userState.dailyChatCount >= 3 &&
+        userState.dailyVocabCount >= 2 &&
+        userState.dailyPronCount >= 1;
+      if (allDone && !userState.dailyBonusClaimed) {
+        userState.dailyBonusClaimed = true;
+        userState.xp += 50;
+        const today = getTodayStr();
+        userState.weeklyXP[today] = (userState.weeklyXP[today] || 0) + 50;
+        showToast("🎉 Tüm günlük hedefler tamamlandı! +50 Bonus XP kazandın!");
+      }
+    }
+
+    function renderTopMetrics() {
+      document.getElementById("streakCount").textContent = userState.streak;
+      document.getElementById("xpCount").textContent = userState.xp;
+    }
+
+    function renderDailyGoals() {
+      const goals = [
+        { label: "💬 3 Mesaj", done: userState.dailyChatCount >= 3, progress: `${Math.min(userState.dailyChatCount, 3)}/3` },
+        { label: "🃏 2 Kelime", done: userState.dailyVocabCount >= 2, progress: `${Math.min(userState.dailyVocabCount, 2)}/2` },
+        { label: "🎙️ 1 Telaffuz", done: userState.dailyPronCount >= 1, progress: `${Math.min(userState.dailyPronCount, 1)}/1` }
+      ];
+      const container = document.getElementById("dailyGoalsContainer");
+      container.innerHTML = goals.map(g => `
+        <span class="text-[11px] font-bold px-2.5 py-1 rounded-xl border ${
+          g.done
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-slate-50 text-slate-600 border-slate-200"
+        }">
+          ${g.done ? "✅" : "⏳"} ${g.label} (${g.progress})
+        </span>
+      `).join("");
+    }
+
+    function setLinguState(state) {
+      const avatar = document.getElementById("linguAvatar");
+      const status = document.getElementById("linguStatusText");
+      avatar.classList.remove("lingu-speaking");
+      if (state === "speaking") {
+        avatar.classList.add("lingu-speaking");
+        status.textContent = "Lingu AI • Konuşuyor...";
+      } else if (state === "thinking") {
+        status.textContent = "Lingu AI • Düşünüyor...";
+      } else {
+        status.textContent = "Lingu AI • Gerçek Zamanlı Dil Öğretmeni";
+      }
+    }
+
+    // =========================================================================
+    // 4. GEMINI AI & AKILLI YEREL YANIT MOTORU
+    // =========================================================================
+    async function geminiRequest(promptText, systemInstruction = "") {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+      const body = {
+        contents: [{ role: "user", parts: [{ text: promptText }] }]
+      };
+      if (systemInstruction) {
+        body.systemInstruction = { parts: [{ text: systemInstruction }] };
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) throw new Error(`API Hatası: ${response.status}`);
+      const data = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    }
+
+    function buildSmartFallbackReply(userText, langCode) {
+      const lower = userText.toLowerCase();
+      let correction = null;
+      if (langCode.startsWith("en")) {
+        if (lower.includes("i am agree")) {
+          correction = { wrong: "I am agree", right: "I agree", note: "'Agree' bir fiildir; 'am' yardımcı fiiliyle kullanılmaz." };
+        } else if (lower.includes("he go ") || lower.endsWith("he go")) {
+          correction = { wrong: "he go", right: "he goes", note: "Geniş zamanda tekil özne (he/she/it) -s takısı alır." };
+        }
+      }
+
+      const replies = {
+        "en-US": {
+          reply: `That's a great point! "${userText}" sounds very natural. How would you expand on that idea in a real conversation?`,
+          tr: "Harika bir nokta! Gerçek bir sohbette bu fikri nasıl biraz daha açardın?",
+          tip: "Cümlelerine 'Actually,' veya 'To be honest,' ekleyerek konuşmanı daha akıcı hale getirebilirsin."
+        },
+        "fr-FR": {
+          reply: "Très bien ! Ton expression est claire. Peux-tu m'en dire un peu plus sur ce sujet ?",
+          tr: "Çok iyi! İfaden gayet açık. Bu konu hakkında biraz daha bilgi verebilir misin?",
+          tip: "'En fait,' veya 'À vrai dire,' kalıpları Fransızcada çok doğal duyulur."
+        },
+        "es-ES": {
+          reply: "¡Muy bien dicho! Me gusta cómo te expresas. ¿Qué más te gustaría comentar?",
+          tr: "Çok güzel söyledin! Kendini ifade edişini beğendim. Başka ne eklemek istersin?",
+          tip: "Konuşmaya başlarken 'La verdad es que...' kalıbını kullanabilirsin."
+        },
+        "de-DE": {
+          reply: "Sehr gut! Das klingt schon richtig natürlich. Möchtest du noch ein Beispiel geben?",
+          tr: "Çok iyi! Kulağa oldukça doğal geliyor. Bir örnek daha vermek ister misin?",
+          tip: "Almancada 'Ehrlich gesagt...' ifadesi cümleye akıcılık katar."
+        },
+        "ru-RU": {
+          reply: "Отлично сказано! Ты делаешь большие успехи. Расскажи об этом подробнее!",
+          tr: "Harika söyledin! Çok iyi ilerliyorsun. Bunu biraz daha detaylı anlat!",
+          tip: "'Честно говоря,' ifadesi konuşmanı daha doğal yapar."
+        },
+        "pt-PT": {
+          reply: "Muito bem! A tua frase está ótima. Queres continuar a desenvolver essa ideia?",
+          tr: "Çok iyi! Cümlen harika. Bu fikri geliştirmeye devam etmek ister misin?",
+          tip: "'Na verdade,' ifadesini cümle başında kullanabilirsin."
+        },
+        "tr-TR": {
+          reply: "Harika ifade ettin! Akıcı ve net bir cümle kurdun. Bu konuyu biraz daha detaylandıralım mı?",
+          tr: "Harika ifade ettin! Akıcı ve net bir cümle kurdun.",
+          tip: "Düşünceni bağlarken 'Açıkçası' veya 'Bununla birlikte' bağlaçlarını kullanabilirsin."
+        }
+      };
+
+      const chosen = replies[langCode] || replies["en-US"];
+      return {
+        reply: chosen.reply,
+        translation: chosen.tr,
+        correction,
+        tip: chosen.tip
+      };
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function appendMessageBubble(role, payload) {
+      const container = document.getElementById("chatMessages");
+      const wrapper = document.createElement("div");
+      wrapper.className = role === "user" ? "flex justify-end" : "flex justify-start";
+
+      if (role === "user") {
+        wrapper.innerHTML = `
+          <div class="max-w-[82%] rounded-2xl rounded-br-sm px-4 py-3 bg-gradient-to-r from-[#0ABAB5] to-[#089692] text-white text-sm shadow-sm">
+            <p>${escapeHtml(payload.text)}</p>
+          </div>
+        `;
+      } else {
+        const corrHtml = payload.correction
+          ? `<div class="mt-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800">
+              <p class="font-bold">✏️ İfade Düzeltmesi:</p>
+              <p><span class="line-through text-rose-500">${escapeHtml(payload.correction.wrong)}</span> → <span class="font-bold text-emerald-700">${escapeHtml(payload.correction.right)}</span></p>
+              <p class="text-[11px] text-slate-600 mt-0.5">${escapeHtml(payload.correction.note || "")}</p>
+            </div>`
+          : "";
+
+        const tipHtml = payload.tip
+          ? `<p class="mt-2 text-[11px] text-[#089692] font-medium bg-teal-50/80 px-2.5 py-1.5 rounded-lg">💡 ${escapeHtml(payload.tip)}</p>`
+          : "";
+
+        wrapper.innerHTML = `
+          <div class="max-w-[86%] rounded-2xl rounded-bl-sm px-4 py-3 bg-white border border-slate-200/90 text-slate-800 shadow-sm space-y-1.5">
+            <div class="flex items-start justify-between gap-3">
+              <p class="text-sm font-medium leading-relaxed">${escapeHtml(payload.reply)}</p>
+              <button type="button" class="speak-msg-btn shrink-0 text-xs px-2 py-1 rounded-lg bg-teal-50 text-[#089692] hover:bg-teal-100" title="Sesli Dinle">
+                🔊
+              </button>
+            </div>
+            ${payload.translation ? `<p class="text-xs text-slate-500 border-t border-slate-100 pt-1.5">${escapeHtml(payload.translation)}</p>` : ""}
+            ${corrHtml}
+            ${tipHtml}
+          </div>
+        `;
+
+        const speakBtn = wrapper.querySelector(".speak-msg-btn");
+        speakBtn.addEventListener("click", () => speakText(payload.reply));
+      }
+
+      container.appendChild(wrapper);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendUserMessage(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const langCode = document.getElementById("languageSelect").value;
+      const langObj = LANGUAGES[langCode];
+      const level = document.getElementById("levelSelect").value;
+
+      appendMessageBubble("user", { text: trimmed });
+      chatHistory.push({ role: "user", text: trimmed });
+      setLinguState("thinking");
+
+      userState.dailyChatCount += 1;
+      addXP(15);
+
+      const sysPrompt = `Sen Veloce AI içindeki samimi dil öğretmeni Lingu'sun.
+Hedef dil: ${langObj.name} (${langCode}), Kullanıcı seviyesi: ${level}.
+${activeScenario ? `Aktif Rol Yapma Senaryosu: ${activeScenario.title} - ${activeScenario.role}` : "Serbest konuşma modu."}
+Kullanıcının mesajını doğal şekilde yanıtla. Küçük bir dilbilgisi veya ifade hatası varsa nazikçe düzelt.
+SADECE geçerli bir JSON objesi döndür:
+{
+  "reply": "Hedef dilde doğal yanıt",
+  "translation": "Yanıtın Türkçe çevirisi",
+  "correction": null veya { "wrong": "hatalı kısım", "right": "doğru hali", "note": "kısa Türkçe açıklama" },
+  "tip": "Türkçe kısa konuşma ipucu"
+}`;
+
+      const recentContext = chatHistory.slice(-6).map(m => `${m.role}: ${m.text}`).join("\n");
+      let parsed = null;
+
+      try {
+        const raw = await geminiRequest(`Sohbet geçmişi:\n${recentContext}\n\nSon kullanıcı mesajı: ${trimmed}`, sysPrompt);
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        }
+      } catch (err) {
+        parsed = null;
+      }
+
+      if (!parsed || !parsed.reply) {
+        parsed = buildSmartFallbackReply(trimmed, langCode);
+      }
+
+      if (parsed.correction && parsed.correction.wrong && parsed.correction.right) {
+        userState.mistakes.unshift({
+          wrong: parsed.correction.wrong,
+          right: parsed.correction.right,
+          note: parsed.correction.note || "",
+          lang: langObj.name,
+          date: getTodayStr()
+        });
+        userState.mistakes = userState.mistakes.slice(0, 20);
+        saveUserState();
+      }
+
+      chatHistory.push({ role: "assistant", text: parsed.reply });
+      appendMessageBubble("assistant", parsed);
+      setLinguState("idle");
+
+      if (document.getElementById("autoSpeakToggle").checked) {
+        speakText(parsed.reply, langCode);
+      }
+    }
+
+    function initConversation(customGreeting = null, customTr = null) {
+      const langCode = document.getElementById("languageSelect").value;
+      const langObj = LANGUAGES[langCode];
+      document.getElementById("chatMessages").innerHTML = "";
+      chatHistory = [];
+
+      const greet = customGreeting || langObj.greeting;
+      const tr = customTr || langObj.translation;
+      chatHistory.push({ role: "assistant", text: greet });
+      appendMessageBubble("assistant", { reply: greet, translation: tr });
+
+      const promptsEl = document.getElementById("quickPrompts");
+      promptsEl.innerHTML = langObj.prompts.map(p => `
+        <button type="button" class="quick-prompt-chip text-[11px] font-semibold px-3 py-1.5 rounded-full bg-white border border-slate-200 text-slate-700 hover:border-[#0ABAB5] whitespace-nowrap">
+          ${escapeHtml(p)}
+        </button>
+      `).join("");
+
+      promptsEl.querySelectorAll(".quick-prompt-chip").forEach(btn => {
+        btn.addEventListener("click", () => sendUserMessage(btn.textContent.trim()));
+      });
+    }
+
+    // =========================================================================
+    // 5. KONUŞMA AKADEMİSİ, KELİME KARTLARI, TELAFFUZ & İSTATİSTİKLER
+    // =========================================================================
+    function renderAcademy() {
+      const grid = document.getElementById("academyGrid");
+      grid.innerHTML = SCENARIOS.map(sc => `
+        <div class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-[#0ABAB5] transition flex flex-col justify-between gap-3 shadow-sm">
+          <div>
+            <div class="text-2xl mb-2">${sc.icon}</div>
+            <h3 class="text-sm font-extrabold text-slate-800">${sc.title}</h3>
+            <p class="text-xs text-slate-500 mt-1">${sc.desc}</p>
+          </div>
+          <button type="button" data-sc="${sc.id}" class="start-scenario-btn w-full py-2 rounded-xl bg-teal-50 text-[#089692] font-bold text-xs hover:bg-[#0ABAB5] hover:text-white transition">
+            Senaryoyu Başlat →
+          </button>
+        </div>
+      `).join("");
+
+      grid.querySelectorAll(".start-scenario-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const sc = SCENARIOS.find(s => s.id === btn.dataset.sc);
+          if (!sc) return;
+          activeScenario = sc;
+          document.getElementById("scenarioBadge").textContent = `${sc.icon} Senaryo: ${sc.title}`;
+          document.getElementById("exitScenarioBtn").classList.remove("hidden");
+          switchTab("chat");
+          initConversation();
+          sendUserMessage(`Start roleplay: ${sc.title}`);
+        });
+      });
+    }
+
+    function renderVocabCard() {
+      if (!userState.deck.length) userState.deck = [...DEFAULT_DECK];
+      if (currentCardIndex >= userState.deck.length) currentCardIndex = 0;
+      const card = userState.deck[currentCardIndex];
+
+      document.getElementById("vocabFlipCard").classList.remove("flipped");
+      document.getElementById("cardFrontWord").textContent = card.term;
+      document.getElementById("cardBackMeaning").textContent = card.meaning;
+      document.getElementById("cardBackExample").textContent = card.example ? `"${card.example}"` : "";
+      document.getElementById("vocabCounter").textContent = `${currentCardIndex + 1} / ${userState.deck.length}`;
+    }
+
+    function renderPronunciationPrompt() {
+      const langCode = document.getElementById("languageSelect").value;
+      const list = LANGUAGES[langCode]?.pronPrompts || LANGUAGES["en-US"].pronPrompts;
+      if (currentPronIndex >= list.length) currentPronIndex = 0;
+      const item = list[currentPronIndex];
+      document.getElementById("pronunciationTarget").textContent = item.text;
+      document.getElementById("pronunciationHint").textContent = item.tr;
+      document.getElementById("pronunciationResult").classList.add("hidden");
+    }
+
+    function evaluatePronunciation(spoken, target) {
+      const clean = s => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, "").trim();
+      const a = clean(spoken).split(/\s+/).filter(Boolean);
+      const b = clean(target).split(/\s+/).filter(Boolean);
+      if (!a.length || !b.length) return 40;
+      let matches = 0;
+      b.forEach(word => {
+        if (a.includes(word)) matches += 1;
+      });
+      return Math.min(100, Math.max(35, Math.round((matches / b.length) * 100)));
+    }
+
+    function renderStatsAndLessons() {
+      const mastered = userState.deck.filter(c => c.mastered).length;
+      const avgPron = userState.pronScores.length
+        ? Math.round(userState.pronScores.reduce((a, b) => a + b, 0) / userState.pronScores.length) + "%"
+        : "-%";
+
+      document.getElementById("statMasteredWords").textContent = mastered;
+      document.getElementById("statAvgPron").textContent = avgPron;
+      document.getElementById("statLessonsDone").textContent = userState.lessonsCompleted;
+      document.getElementById("statMistakeCount").textContent = userState.mistakes.length;
+
+      const mistakeBox = document.getElementById("mistakeListBox");
+      if (!userState.mistakes.length) {
+        mistakeBox.innerHTML = `<p class="text-xs text-slate-400 italic">Henüz kayıtlı hata yok. Sohbet ettikçe hataların burada analiz edilir.</p>`;
+      } else {
+        mistakeBox.innerHTML = userState.mistakes.slice(0, 5).map(m => `
+          <div class="p-2 rounded-xl bg-rose-50/70 border border-rose-100 text-[11px]">
+            <span class="line-through text-rose-500">${escapeHtml(m.wrong)}</span> →
+            <span class="font-bold text-emerald-700">${escapeHtml(m.right)}</span>
+          </div>
+        `).join("");
+      }
+
+      const chart = document.getElementById("weeklyChart");
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const label = d.toLocaleDateString("tr-TR", { weekday: "short" });
+        days.push({ label, val: userState.weeklyXP[key] || 0 });
+      }
+      const maxVal = Math.max(50, ...days.map(d => d.val));
+      chart.innerHTML = days.map(d => {
+        const pct = Math.max(12, Math.round((d.val / maxVal) * 100));
+        return `
+          <div class="flex flex-col items-center gap-1 h-full justify-end">
+            <div class="w-full rounded-t-lg bg-gradient-to-t from-[#0ABAB5] to-teal-300 transition-all" style="height:${pct}%" title="${d.val} XP"></div>
+            <span class="text-[10px] font-bold text-slate-500">${d.label}</span>
+          </div>
+        `;
+      }).join("");
+
+      const sessList = document.getElementById("savedSessionsList");
+      if (!userState.sessions.length) {
+        sessList.innerHTML = `<p class="text-xs text-slate-400 italic">Henüz kaydedilmiş sohbet oturumu bulunmuyor.</p>`;
+      } else {
+        sessList.innerHTML = userState.sessions.slice(0, 6).map(s => `
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+            <div>
+              <p class="font-bold text-slate-700">${escapeHtml(s.title)}</p>
+              <p class="text-[11px] text-slate-400">${s.date} • ${s.count} mesaj</p>
+            </div>
+            <span class="text-[11px] font-bold text-[#089692]">${escapeHtml(s.lang)}</span>
+          </div>
+        `).join("");
+      }
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const active = btn.dataset.tab === tabName;
+        btn.className = active
+          ? "tab-btn active px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0ABAB5] text-white shadow-sm whitespace-nowrap transition"
+          : "tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-teal-300 whitespace-nowrap transition";
+      });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("hidden", panel.id !== `tab-${tabName}`);
+      });
+      if (tabName === "stats") renderStatsAndLessons();
+    }
+
+    // =========================================================================
+    // 6. OLAY DİNLEYİCİLERİ & BAŞLANGIÇ MASKOTU YÖNETİMİ
+    // =========================================================================
+    function dismissSplashScreen() {
+      const splash = document.getElementById("splashScreen");
+      if (!splash || splash.dataset.closed === "1") return;
+      splash.dataset.closed = "1";
+      unlockAudioEngine();
+      splash.classList.add("opacity-0", "pointer-events-none");
+      setTimeout(() => splash.remove(), 500);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const bar = document.getElementById("splashProgressBar");
+      if (bar) {
+        requestAnimationFrame(() => { bar.style.width = "100%"; });
+      }
+      setTimeout(dismissSplashScreen, 1200);
+      document.getElementById("enterAppBtn").addEventListener("click", dismissSplashScreen);
+
+      populateVoices();
+      renderTopMetrics();
+      renderDailyGoals();
+      renderAcademy();
+      renderVocabCard();
+      renderPronunciationPrompt();
+      initConversation();
+
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      document.getElementById("languageSelect").addEventListener("change", () => {
+        stopAllSpeech();
+        populateVoices();
+        renderPronunciationPrompt();
+        initConversation();
+      });
+
+      document.getElementById("testVoiceBtn").addEventListener("click", () => {
+        const langCode = document.getElementById("languageSelect").value;
+        speakText(LANGUAGES[langCode].greeting, langCode);
+      });
+
+      document.getElementById("newChatBtn").addEventListener("click", () => {
+        if (chatHistory.length > 1) {
+          const langCode = document.getElementById("languageSelect").value;
+          userState.sessions.unshift({
+            title: activeScenario ? activeScenario.title : "Serbest Konuşma",
+            date: getTodayStr(),
+            count: chatHistory.length,
+            lang: LANGUAGES[langCode].name
+          });
+          saveUserState();
+          showToast("💾 Sohbet geçmişe kaydedildi ve yeni oturum açıldı.");
+        }
+        stopAllSpeech();
+        initConversation();
+      });
+
+      document.getElementById("exitScenarioBtn").addEventListener("click", () => {
+        activeScenario = null;
+        document.getElementById("scenarioBadge").textContent = "Serbest Konuşma Modu";
+        document.getElementById("exitScenarioBtn").classList.add("hidden");
+        initConversation();
+      });
+
+      document.getElementById("chatForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = document.getElementById("chatInput");
+        const val = input.value;
+        input.value = "";
+        sendUserMessage(val);
+      });
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      document.getElementById("micChatBtn").addEventListener("click", () => {
+        if (!SpeechRec) {
+          showToast("Tarayıcın sesli girişi desteklemiyor.");
+          return;
+        }
+        stopAllSpeech();
+        const rec = new SpeechRec();
+        rec.lang = document.getElementById("languageSelect").value;
+        rec.onstart = () => showToast("🎙️ Dinliyorum, konuşabilirsin...");
+        rec.onresult = (ev) => {
+          const transcript = ev.results[0][0].transcript;
+          sendUserMessage(transcript);
+        };
+        rec.onerror = () => showToast("Ses algılanamadı, tekrar deneyebilirsin.");
+        rec.start();
+      });
+
+      document.getElementById("vocabFlipCard").addEventListener("click", (e) => {
+        if (e.target.closest("#cardSpeakBtn")) return;
+        document.getElementById("vocabFlipCard").classList.toggle("flipped");
+      });
+
+      document.getElementById("cardSpeakBtn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const card = userState.deck[currentCardIndex];
+        if (card) speakText(card.term);
+      });
+
+      document.querySelectorAll(".vocab-rate-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const rate = btn.dataset.rate;
+          if (rate === "easy") {
+            userState.deck[currentCardIndex].mastered = true;
+            userState.dailyVocabCount += 1;
+            addXP(10);
+          }
+          currentCardIndex = (currentCardIndex + 1) % userState.deck.length;
+          saveUserState();
+          renderVocabCard();
+        });
+      });
+
+      document.getElementById("addVocabForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const term = document.getElementById("newWordInput").value.trim();
+        const meaning = document.getElementById("newMeaningInput").value.trim();
+        if (!term || !meaning) return;
+        userState.deck.push({ term, meaning, example: "", mastered: false });
+        document.getElementById("newWordInput").value = "";
+        document.getElementById("newMeaningInput").value = "";
+        saveUserState();
+        renderVocabCard();
+        showToast("✅ Yeni kelime desteye eklendi!");
+      });
+
+      document.getElementById("listenTargetBtn").addEventListener("click", () => {
+        const target = document.getElementById("pronunciationTarget").textContent;
+        speakText(target);
+      });
+
+      document.getElementById("nextPromptBtn").addEventListener("click", () => {
+        currentPronIndex += 1;
+        renderPronunciationPrompt();
+      });
+
+      document.getElementById("recordPronBtn").addEventListener("click", () => {
+        if (!SpeechRec) {
+          showToast("Tarayıcın mikrofon değerlendirmesini desteklemiyor.");
+          return;
+        }
+        stopAllSpeech();
+        const rec = new SpeechRec();
+        rec.lang = document.getElementById("languageSelect").value;
+        rec.onstart = () => showToast("🎙️ Hedef cümleyi oku...");
+        rec.onresult = (ev) => {
+          const spoken = ev.results[0][0].transcript;
+          const target = document.getElementById("pronunciationTarget").textContent;
+          const score = evaluatePronunciation(spoken, target);
+
+          userState.pronScores.push(score);
+          userState.dailyPronCount += 1;
+          addXP(20);
+
+          document.getElementById("pronunciationResult").classList.remove("hidden");
+          document.getElementById("pronScoreBadge").textContent = `${score} / 100`;
+          document.getElementById("pronSpokenText").textContent = `Algılanan: "${spoken}"`;
+          document.getElementById("pronFeedbackText").textContent =
+            score >= 80
+              ? "Harika telaffuz! Vurgu ve akıcılığın çok doğal."
+              : "Güzel deneme! Cümleyi önce dinleyip kelimeleri daha tane tane tekrar edebilirsin.";
+        };
+        rec.onerror = () => showToast("Ses algılanamadı, mikrofona izin verdiğinden emin ol.");
+        rec.start();
+      });
+
+      document.getElementById("generateLessonBtn").addEventListener("click", () => {
+        const out = document.getElementById("customLessonOutput");
+        out.classList.remove("hidden");
+        const sample = userState.mistakes[0];
+        userState.lessonsCompleted += 1;
+        addXP(25);
+
+        out.innerHTML = sample
+          ? `<p class="font-bold text-[#089692]">📘 Kişisel Odak Noktan: "${escapeHtml(sample.right)}"</p>
+             <p class="text-slate-600 mt-1">${escapeHtml(sample.note || "Bu yapıyı günlük cümlelerde düzenli tekrar ederek kalıcı hale getirebilirsin.")}</p>
+             <p class="font-semibold text-slate-700 mt-2">Mini Alıştırma: "${escapeHtml(sample.right)}" ifadesini sohbet sekmesinde yeni bir cümle içinde kullan!</p>`
+          : `<p class="font-bold text-[#089692]">📘 Akıcılık & Bağlaç Dersi</p>
+             <p class="text-slate-600 mt-1">Konuşmalarını doğal bağlaçlarla zenginleştirerek seviyeni bir üst basamağa taşıyabilirsin.</p>`;
+        renderStatsAndLessons();
+      });
+    });
   </script>
 </body>
 </html>
+```
